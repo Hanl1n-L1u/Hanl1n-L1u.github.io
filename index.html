@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanlin's Blog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════
+           Reset & Base
+           ═══════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #faf9f7;
+            --bg-card: #ffffff;
+            --bg-hover: #f3f1ed;
+            --text: #1a1a2e;
+            --text-secondary: #6b7280;
+            --border: #e5e3df;
+            --accent: #7c3aed;
+            --accent-light: #a78bfa;
+            --hero-from: #667eea;
+            --hero-to: #764ba2;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+            --shadow-hover: 0 10px 25px rgba(0,0,0,.08);
+            --transition: .3s cubic-bezier(.4,0,.2,1);
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f0f1a;
+            --bg-card: #1a1a2e;
+            --bg-hover: #252540;
+            --text: #e4e4ed;
+            --text-secondary: #9ca3af;
+            --border: #2d2d44;
+            --shadow: 0 1px 3px rgba(0,0,0,.2);
+            --shadow-hover: 0 10px 25px rgba(0,0,0,.3);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            transition: background var(--transition), color var(--transition);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══════════════════════════════════════
+           Theme Toggle
+           ═══════════════════════════════════════ */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 24px;
+            z-index: 100;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            transition: all var(--transition);
+            box-shadow: var(--shadow);
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            border-color: var(--accent-light);
+        }
+
+        /* ═══════════════════════════════════════
+           Hero
+           ═══════════════════════════════════════ */
+        .hero {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 24px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(135deg, var(--hero-from) 0%, var(--hero-to) 100%);
+            opacity: 0.08;
+            animation: hero-orbit 20s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes hero-orbit {
+            0%   { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-5%, 5%) rotate(3deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .avatar {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 36px;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 8px 30px rgba(124,58,237,.25);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            letter-spacing: -.03em;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            color: var(--text-secondary);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .hero-social {
+            margin-top: 32px;
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .hero-social a {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            display: grid;
+            place-items: center;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 18px;
+            transition: all var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-social a:hover {
+            border-color: var(--accent-light);
+            color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .scroll-indicator {
+            margin-top: 60px;
+            animation: bounce 2s infinite;
+            color: var(--text-secondary);
+            font-size: 20px;
+            opacity: .5;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(8px); }
+        }
+
+        /* ═══════════════════════════════════════
+           Container
+           ═══════════════════════════════════════ */
+        .container {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ═══════════════════════════════════════
+           Section Header
+           ═══════════════════════════════════════ */
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            margin-bottom: 8px;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: .95rem;
+        }
+
+        /* ═══════════════════════════════════════
+           About
+           ═══════════════════════════════════════ */
+        .about-section {
+            padding: 80px 0 40px;
+        }
+
+        .about-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px 40px;
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+        }
+
+        .about-card p {
+            color: var(--text-secondary);
+            font-size: .95rem;
+        }
+
+        .about-card p + p {
+            margin-top: 12px;
+        }
+
+        /* ═══════════════════════════════════════
+           Blog Posts Grid
+           ═══════════════════════════════════════ */
+        .blog-section {
+            padding: 60px 0 100px;
+        }
+
+        .posts-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: var(--shadow);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .post-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--accent-light);
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .post-meta .tag {
+            background: var(--accent);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: .7rem;
+            font-weight: 500;
+            letter-spacing: .02em;
+        }
+
+        .post-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .post-card p {
+            font-size: .9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ═══════════════════════════════════════
+           Footer
+           ═══════════════════════════════════════ */
+        footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: .85rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ═══════════════════════════════════════
+           Fade-in Entry
+           ═══════════════════════════════════════ */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn .6s ease forwards;
+        }
+
+        .fade-in:nth-child(1) { animation-delay: .1s; }
+        .fade-in:nth-child(2) { animation-delay: .2s; }
+        .fade-in:nth-child(3) { animation-delay: .3s; }
+        .fade-in:nth-child(4) { animation-delay: .4s; }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ═══════════════════════════════════════
+           Responsive
+           ═══════════════════════════════════════ */
+        @media (max-width: 600px) {
+            .about-card { padding: 24px 20px; }
+            .post-card  { padding: 20px 20px; }
+            .hero       { min-height: 60vh; padding: 60px 20px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+
+    <!-- ══════════════════ Hero ══════════════════ -->
+    <section class="hero">
+        <div class="hero-content fade-in">
+            <div class="avatar">H</div>
+            <h1>Hanlin</h1>
+            <p>Write, learn, build. Just a corner of the internet I call home.</p>
+            <div class="hero-social">
+                <a href="https://github.com" target="_blank" rel="noopener" aria-label="GitHub">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="Twitter">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+                </a>
+                <a href="mailto:hi@liuhanlin.xyz" aria-label="Email">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </a>
+                <a href="https://liuhanlin.xyz" aria-label="Website">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </a>
+            </div>
+        </div>
+        <div class="scroll-indicator">↓</div>
+    </section>
+
+    <!-- ══════════════════ About ══════════════════ -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>About</h2>
+                <p>A little bit about me</p>
+            </div>
+            <div class="about-card fade-in">
+                <p>Hey, I'm Hanlin. This is my little spot on the web — a place to share thoughts, document what I learn, and keep track of things I'm building.</p>
+                <p>I write about tech, life, and whatever catches my curiosity. Sometimes deep dives, sometimes just quick notes.</p>
+                <p>If something here resonates, feel free to reach out. I'm always happy to chat.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════ Blog ══════════════════ -->
+    <section class="blog-section" id="blog">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Posts</h2>
+                <p>Random thoughts and things I've learned</p>
+            </div>
+            <div class="posts-grid">
+
+                <article class="post-card fade-in">
+                    <div class="post-meta">
+                        <span>Jul 27, 2026</span>
+                        <span class="tag">Hello World</span>
+                    </div>
+                    <h3>Hello, World!</h3>
+                    <p>Finally got around to setting up this site. A place to call my own on the internet. First post vibes.</p>
+                </article>
+
+                <article class="post-card fade-in">
+                    <div class="post-meta">
+                        <span>Jul 25, 2026</span>
+                        <span class="tag">Tech</span>
+                    </div>
+                    <h3>Setting Up This Blog</h3>
+                    <p>A quick breakdown of how I put this site together — GitHub Pages, custom domain, and a bit of CSS magic.</p>
+                </article>
+
+                <article class="post-card fade-in">
+                    <div class="post-meta">
+                        <span>Jul 20, 2026</span>
+                        <span class="tag">Notes</span>
+                    </div>
+                    <h3>Things I'm Into Right Now</h3>
+                    <p>Just a casual list of what's been occupying my brain lately — projects, music, tools, and rabbit holes.</p>
+                </article>
+
+                <article class="post-card fade-in">
+                    <div class="post-meta">
+                        <span>Jul 15, 2026</span>
+                        <span class="tag">Life</span>
+                    </div>
+                    <h3>Why I Started Writing Online</h3>
+                    <p>I used to think I had nothing worth saying. Turns out, you don't need to be an expert to have something valuable to share.</p>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════ Footer ══════════════════ -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 <a href="https://liuhanlin.xyz">liuhanlin.xyz</a> · Built with 🦀</p>
+        </div>
+    </footer>
+
+    <script>
+        // ═══════════════════════════════════════
+        // Theme Toggle
+        // ═══════════════════════════════════════
+        const toggle = document.getElementById('themeToggle');
+        const html   = document.documentElement;
+
+        // Respect system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const stored = localStorage.getItem('theme');
+        const currentTheme = stored || (prefersDark ? 'dark' : 'light');
+        html.setAttribute('data-theme', currentTheme);
+        toggle.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+
+        toggle.addEventListener('click', () => {
+            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            toggle.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+
+        // ═══════════════════════════════════════
+        // Scroll observer for fade-in
+        // ═══════════════════════════════════════
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: .15 });
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            el.style.animationPlayState = 'paused';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
