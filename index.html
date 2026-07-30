@@ -494,15 +494,15 @@
             <div class="comments-wrapper fade-in">
                 <div class="comments-header">
                     <h2>💬 评论</h2>
-                    <a href="https://github.com/Hanl1n-L1u/Hanl1n-L1u.github.io/issues" target="_blank" rel="noopener" class="comments-manage">
-                        📋 管理评论
-                    </a>
+                    <div class="comments-admin-area">
+                        <a href="https://github.com/Hanl1n-L1u/Hanl1n-L1u.github.io/issues" target="_blank" rel="noopener" class="comments-manage" id="adminLink">
+                            📋 管理评论
+                        </a>
+                    </div>
                 </div>
                 <div class="comments-note">
-                    <strong>💡 说明：</strong>评论使用 GitHub Issues 系统。
-                    发布评论需要 GitHub 账号（首次会自动创建 Issue），
-                    新评论会自动发邮件到我的邮箱 📨。
-                    你可以点击上方「管理评论」去 GitHub 删除/编辑。
+                    <strong>💡 说明：</strong>评论需要 GitHub 账号（首次会自动创建 Issue）。
+                    访客评论时 GitHub 会自动通知我 📨
                 </div>
                 <div id="utterances-container"></div>
             </div>
@@ -555,6 +555,32 @@
         });
 
         // ═══════════════════════════════════════
+        // Secret admin link (点 footer 的 🦀 3 次)
+        // ═══════════════════════════════════════
+        let clickCount = 0;
+        const adminLink = document.getElementById('adminLink');
+        if (adminLink) adminLink.style.display = 'none';
+
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('footer') && e.target.textContent.includes('🦀')) {
+                clickCount++;
+                if (clickCount >= 3) {
+                    if (adminLink) {
+                        adminLink.style.display = '';
+                        adminLink.style.animation = 'fadeIn .4s ease';
+                    }
+                    clickCount = 0;
+                    setTimeout(() => { if (adminLink) adminLink.style.display = 'none'; }, 15000);
+                }
+            }
+        });
+
+        // Also show if URL has ?admin parameter
+        if (window.location.search.includes('admin')) {
+            if (adminLink) adminLink.style.display = '';
+        }
+
+        // ═══════════════════════════════════════
         // Utterances (评论区)
         // ═══════════════════════════════════════
         function loadUtterances(theme) {
@@ -578,7 +604,6 @@
 
         // Reload when theme toggles
         toggle.addEventListener('click', () => {
-            // Wait a tick for the theme to update, then reload utterances
             setTimeout(() => {
                 const newTheme = html.getAttribute('data-theme');
                 loadUtterances(newTheme);
