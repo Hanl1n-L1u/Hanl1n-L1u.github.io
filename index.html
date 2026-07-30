@@ -493,19 +493,7 @@
         <div class="container">
             <div class="comments-wrapper fade-in">
                 <div class="comments-header">
-                    <h2>💬 评论</h2>
-                    <div class="comments-admin-area">
-                        <a href="https://cusdis.com/dashboard/3a0a1bb6-e059-4cec-8b34-de004aa8b968" target="_blank" rel="noopener" class="comments-manage" id="dashLink" style="margin-right:8px;">
-                            ⚙️ 后台
-                        </a>
-                        <a href="https://github.com/Hanl1n-L1u/Hanl1n-L1u.github.io/issues" target="_blank" rel="noopener" class="comments-manage" id="adminLink">
-                            📋 GitHub
-                        </a>
-                    </div>
-                </div>
-                <div class="comments-note">
-                    <strong>💡 说明：</strong>无需注册，随意留言。
-                    评论需要审核通过后才会显示，广告/垃圾评论会被删除 🗑️
+                    <h2>💬 评论区</h2>
                 </div>
                 <div id="cusdis_thread"
                   data-host="https://cusdis.com"
@@ -563,35 +551,7 @@
             observer.observe(el);
         });
 
-        // ═══════════════════════════════════════
-        // Secret admin link (点 footer 的 🦀 3 次)
-        // ═══════════════════════════════════════
-        let clickCount = 0;
-        const adminLink = document.getElementById('adminLink');
-        const dashLink = document.getElementById('dashLink');
-        if (adminLink) adminLink.style.display = 'none';
-        if (dashLink) dashLink.style.display = 'none';
 
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('footer') && e.target.textContent.includes('🦀')) {
-                clickCount++;
-                if (clickCount >= 3) {
-                    if (adminLink) adminLink.style.display = '';
-                    if (dashLink) dashLink.style.display = '';
-                    clickCount = 0;
-                    setTimeout(() => {
-                        if (adminLink) adminLink.style.display = 'none';
-                        if (dashLink) dashLink.style.display = 'none';
-                    }, 15000);
-                }
-            }
-        });
-
-        // Also show if URL has ?admin parameter
-        if (window.location.search.includes('admin')) {
-            if (adminLink) adminLink.style.display = '';
-            if (dashLink) dashLink.style.display = '';
-        }
 
         // ═══════════════════════════════════════
         // Cusdis (评论区)
