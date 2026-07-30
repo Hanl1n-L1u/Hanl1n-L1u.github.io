@@ -495,16 +495,25 @@
                 <div class="comments-header">
                     <h2>💬 评论</h2>
                     <div class="comments-admin-area">
+                        <a href="https://cusdis.com/dashboard/3a0a1bb6-e059-4cec-8b34-de004aa8b968" target="_blank" rel="noopener" class="comments-manage" id="dashLink" style="margin-right:8px;">
+                            ⚙️ 后台
+                        </a>
                         <a href="https://github.com/Hanl1n-L1u/Hanl1n-L1u.github.io/issues" target="_blank" rel="noopener" class="comments-manage" id="adminLink">
-                            📋 管理评论
+                            📋 GitHub
                         </a>
                     </div>
                 </div>
                 <div class="comments-note">
-                    <strong>💡 说明：</strong>评论需要 GitHub 账号（首次会自动创建 Issue）。
-                    访客评论时 GitHub 会自动通知我 📨
+                    <strong>💡 说明：</strong>无需注册，随意留言。
+                    评论需要审核通过后才会显示，广告/垃圾评论会被删除 🗑️
                 </div>
-                <div id="utterances-container"></div>
+                <div id="cusdis_thread"
+                  data-host="https://cusdis.com"
+                  data-app-id="3a0a1bb6-e059-4cec-8b34-de004aa8b968"
+                  data-page-id="index"
+                  data-page-url="https://liuhanlin.xyz"
+                  data-page-title="Hanlin的小窝">
+                </div>
             </div>
         </div>
     </section>
@@ -559,18 +568,21 @@
         // ═══════════════════════════════════════
         let clickCount = 0;
         const adminLink = document.getElementById('adminLink');
+        const dashLink = document.getElementById('dashLink');
         if (adminLink) adminLink.style.display = 'none';
+        if (dashLink) dashLink.style.display = 'none';
 
         document.addEventListener('click', (e) => {
             if (e.target.closest('footer') && e.target.textContent.includes('🦀')) {
                 clickCount++;
                 if (clickCount >= 3) {
-                    if (adminLink) {
-                        adminLink.style.display = '';
-                        adminLink.style.animation = 'fadeIn .4s ease';
-                    }
+                    if (adminLink) adminLink.style.display = '';
+                    if (dashLink) dashLink.style.display = '';
                     clickCount = 0;
-                    setTimeout(() => { if (adminLink) adminLink.style.display = 'none'; }, 15000);
+                    setTimeout(() => {
+                        if (adminLink) adminLink.style.display = 'none';
+                        if (dashLink) dashLink.style.display = 'none';
+                    }, 15000);
                 }
             }
         });
@@ -578,36 +590,36 @@
         // Also show if URL has ?admin parameter
         if (window.location.search.includes('admin')) {
             if (adminLink) adminLink.style.display = '';
+            if (dashLink) dashLink.style.display = '';
         }
 
         // ═══════════════════════════════════════
-        // Utterances (评论区)
+        // Cusdis (评论区)
         // ═══════════════════════════════════════
-        function loadUtterances(theme) {
-            const container = document.getElementById('utterances-container');
-            if (!container) return;
-            container.innerHTML = '';
-            const script = document.createElement('script');
-            script.src = 'https://utteranc.es/client.js';
-            script.setAttribute('repo', 'Hanl1n-L1u/Hanl1n-L1u.github.io');
-            script.setAttribute('issue-term', 'pathname');
-            script.setAttribute('label', '💬');
-            script.setAttribute('theme', theme === 'dark' ? 'github-dark' : 'github-light');
-            script.setAttribute('crossorigin', 'anonymous');
-            script.async = true;
-            container.appendChild(script);
+        const cusdisScript = document.createElement('script');
+        cusdisScript.src = 'https://cusdis.com/js/cusdis.es.js';
+        cusdisScript.async = true;
+        cusdisScript.defer = true;
+        document.body.appendChild(cusdisScript);
+
+        // Cusdis 暗亮主题切换
+        function updateCusdisTheme(theme) {
+            const iframe = document.querySelector('iframe[title="cusdis"]');
+            if (iframe) {
+                iframe.contentWindow.postMessage({
+                    from: 'cusdis',
+                    event: 'change_theme',
+                    theme: theme === 'dark' ? 'dark' : 'light'
+                }, '*');
+            }
         }
 
-        // Load with current theme
-        const currentTheme = html.getAttribute('data-theme') || 'light';
-        loadUtterances(currentTheme);
-
-        // Reload when theme toggles
+        // 监听主题切换
         toggle.addEventListener('click', () => {
             setTimeout(() => {
                 const newTheme = html.getAttribute('data-theme');
-                loadUtterances(newTheme);
-            }, 50);
+                updateCusdisTheme(newTheme);
+            }, 1000);
         });
     </script>
 </body>
