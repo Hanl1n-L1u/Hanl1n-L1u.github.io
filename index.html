@@ -310,6 +310,74 @@
         }
 
         /* ═══════════════════════════════════════
+           Comments
+           ═══════════════════════════════════════ */
+        .comments-section {
+            padding: 60px 0 40px;
+        }
+
+        .comments-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px 40px;
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+        }
+
+        .comments-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .comments-header h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .comments-manage {
+            font-size: .8rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            transition: all var(--transition);
+        }
+
+        .comments-manage:hover {
+            border-color: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .comments-note {
+            font-size: .8rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-light);
+            line-height: 1.6;
+        }
+
+        .comments-note strong {
+            color: var(--text);
+        }
+
+        .utterances-frame, .utterances {
+            max-width: 100% !important;
+        }
+
+        @media (max-width: 600px) {
+            .comments-wrapper { padding: 24px 20px; }
+        }
+
+        /* ═══════════════════════════════════════
            Footer
            ═══════════════════════════════════════ */
         footer {
@@ -420,6 +488,27 @@
         </div>
     </section>
 
+    <!-- ══════════════════ Comments ══════════════════ -->
+    <section class="comments-section" id="comments">
+        <div class="container">
+            <div class="comments-wrapper fade-in">
+                <div class="comments-header">
+                    <h2>💬 评论</h2>
+                    <a href="https://github.com/Hanl1n-L1u/Hanl1n-L1u.github.io/issues" target="_blank" rel="noopener" class="comments-manage">
+                        📋 管理评论
+                    </a>
+                </div>
+                <div class="comments-note">
+                    <strong>💡 说明：</strong>评论使用 GitHub Issues 系统。
+                    发布评论需要 GitHub 账号（首次会自动创建 Issue），
+                    新评论会自动发邮件到我的邮箱 📨。
+                    你可以点击上方「管理评论」去 GitHub 删除/编辑。
+                </div>
+                <div id="utterances-container"></div>
+            </div>
+        </div>
+    </section>
+
     <!-- ══════════════════ Footer ══════════════════ -->
     <footer>
         <div class="container">
@@ -463,6 +552,37 @@
         document.querySelectorAll('.fade-in').forEach(el => {
             el.style.animationPlayState = 'paused';
             observer.observe(el);
+        });
+
+        // ═══════════════════════════════════════
+        // Utterances (评论区)
+        // ═══════════════════════════════════════
+        function loadUtterances(theme) {
+            const container = document.getElementById('utterances-container');
+            if (!container) return;
+            container.innerHTML = '';
+            const script = document.createElement('script');
+            script.src = 'https://utteranc.es/client.js';
+            script.setAttribute('repo', 'Hanl1n-L1u/Hanl1n-L1u.github.io');
+            script.setAttribute('issue-term', 'pathname');
+            script.setAttribute('label', '💬');
+            script.setAttribute('theme', theme === 'dark' ? 'github-dark' : 'github-light');
+            script.setAttribute('crossorigin', 'anonymous');
+            script.async = true;
+            container.appendChild(script);
+        }
+
+        // Load with current theme
+        const currentTheme = html.getAttribute('data-theme') || 'light';
+        loadUtterances(currentTheme);
+
+        // Reload when theme toggles
+        toggle.addEventListener('click', () => {
+            // Wait a tick for the theme to update, then reload utterances
+            setTimeout(() => {
+                const newTheme = html.getAttribute('data-theme');
+                loadUtterances(newTheme);
+            }, 50);
         });
     </script>
 </body>
