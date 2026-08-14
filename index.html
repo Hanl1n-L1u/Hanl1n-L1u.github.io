@@ -416,6 +416,59 @@
         }
 
         /* ═══════════════════════════════════════
+           Article Modal
+           ═══════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 24px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            max-width: 720px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 32px 36px;
+            box-shadow: var(--shadow-hover);
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            line-height: 1;
+        }
+        .modal-close:hover { color: var(--text); }
+        .modal h3 { font-size: 1.4rem; margin-bottom: 6px; }
+        .modal-meta { font-size: .8rem; color: var(--text-secondary); margin-bottom: 18px; }
+        .modal-content p {
+            color: var(--text-secondary);
+            font-size: .95rem;
+            line-height: 1.8;
+        }
+        .modal-content p + p { margin-top: 14px; }
+        .modal-content code {
+            background: var(--bg-hover);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: .85em;
+        }
+
+        /* ═══════════════════════════════════════
            Responsive
            ═══════════════════════════════════════ */
         @media (max-width: 600px) {
@@ -455,13 +508,13 @@
     <section class="about-section" id="about">
         <div class="container">
             <div class="section-header fade-in">
-                <h2>关于</h2>
-                <p>这个人是谁</p>
+                <h2>关于我</h2>
+                <p>简单介绍</p>
             </div>
             <div class="about-card fade-in">
-                <p>你好，我是 Hanlin。搞了个小站，写点自己想写的东西。</p>
-                <p>内容没什么固定方向——技术、生活、偶尔抽风想到什么写什么。有长文有短句，看心情。</p>
-                <p>如果你看到什么有同感，欢迎找我聊。我话不多，但交个朋友挺好的。</p>
+                <p>你好，我是 Hanlin。这是我的个人博客，记录生活和学到的技术。</p>
+                <p>内容不固定，想到什么写什么，大多是随手记的东西。</p>
+                <p>有问题或者想聊两句，欢迎在评论区留言。</p>
             </div>
         </div>
     </section>
@@ -471,9 +524,18 @@
         <div class="container">
             <div class="section-header fade-in">
                 <h2>文章</h2>
-                <p>随手的记录和学到的东西</p>
+                <p>随手记的东西</p>
             </div>
             <div class="posts-grid">
+
+                <article class="post-card fade-in" data-article="desktop">
+                    <div class="post-meta">
+                        <span>2026.08.15</span>
+                        <span class="tag">开发</span>
+                    </div>
+                    <h3>给 OpenClaw 做了个桌面版</h3>
+                    <p>今天学了下 Rust，用 Tauri 给 OpenClaw 做了个桌面应用。踩了个大坑，记录一下。</p>
+                </article>
 
                 <article class="post-card fade-in">
                     <div class="post-meta">
@@ -512,6 +574,25 @@
             <p>&copy; 2026 <a href="https://liuhanlin.xyz">liuhanlin.xyz</a> · 一只🦀在背后默默支持</p>
         </div>
     </footer>
+
+    <!-- Article Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+            <h3 id="modalTitle"></h3>
+            <div class="modal-meta" id="modalMeta"></div>
+            <div class="modal-content" id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Article bodies -->
+    <div id="article-desktop" hidden>
+        <p>一直觉得我的 AI 助手 OpenClaw 用起来有点麻烦，每次都要开浏览器、连网关。就想着给它做个桌面应用。</p>
+        <p>于是今天开始学 Rust，用 Tauri 做了个壳。大概过程：装环境 → 搭项目 → 把 Control UI 嵌进去（用的 WebView2，界面跟网页版一模一样）→ 做托盘图标 → 弄开机自启。</p>
+        <p>最折腾的是“网关守护”。想加个功能：网关挂了自动重启。结果用 <code>openclaw gateway start</code> 做自动拉起，踩了个大坑——这个命令会先把正在跑的网关杀掉再重启，启动又要 40 秒，检测逻辑以为网关一直没起来，又触发一次……无限循环，网页版就一直显示“gateway 已断开”。搞到凌晨才发现是这行命令的问题。</p>
+        <p>现在桌面版基本能用了：双击打开、托盘常驻、开机自启。守护逻辑的坑记下了，回头改成“先探测端口，真挂了才拉”。</p>
+        <p>第一次认真写 Rust，感觉还行。</p>
+    </div>
 
     <script>
         // ═══════════════════════════════════════
@@ -580,6 +661,34 @@
                 const newTheme = html.getAttribute('data-theme');
                 updateCusdisTheme(newTheme);
             }, 1000);
+        });
+
+        // ═══════════════════════════════════════
+        // Article Modal (点卡片看全文)
+        // ═══════════════════════════════════════
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalTitle   = document.getElementById('modalTitle');
+        const modalMeta    = document.getElementById('modalMeta');
+        const modalContent = document.getElementById('modalContent');
+
+        function closeModal() { modalOverlay.classList.remove('open'); }
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        document.querySelectorAll('.post-card[data-article]').forEach(card => {
+            card.addEventListener('click', () => {
+                const article = document.getElementById('article-' + card.dataset.article);
+                if (!article) return;
+                modalTitle.textContent = card.querySelector('h3').textContent;
+                modalMeta.textContent = card.querySelector('.post-meta').textContent.trim();
+                modalContent.innerHTML = article.innerHTML;
+                modalOverlay.classList.add('open');
+            });
         });
     </script>
 </body>
