@@ -325,6 +325,23 @@
             transition: all var(--transition);
         }
 
+        /* 深色模式下评论卡片边框更清晰 */
+        [data-theme="dark"] .comments-wrapper {
+            border-color: #4a4a72;
+            box-shadow: 0 0 0 1px rgba(124,58,237,.22), var(--shadow-hover);
+        }
+
+        /* 深色模式下页面滚动条 */
+        [data-theme="dark"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+        [data-theme="dark"] ::-webkit-scrollbar-track { background: #14142b; }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #3a3a5e;
+            border-radius: 6px;
+            border: 2px solid #14142b;
+        }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #4a4a72; }
+        [data-theme="dark"] { scrollbar-color: #3a3a5e #14142b; }
+
         .comments-header {
             display: flex;
             align-items: center;
@@ -636,30 +653,131 @@
         // ═══════════════════════════════════════
         // Cusdis (评论区)
         // ═══════════════════════════════════════
+        const cusdisThread = document.getElementById('cusdis_thread');
+        // 初始主题写进 data-theme，iframe 一启动就是正确主题（官方只认 data-theme / setTheme 事件）
+        cusdisThread.dataset.theme = html.getAttribute('data-theme');
+
         const cusdisScript = document.createElement('script');
         cusdisScript.src = 'https://cusdis.com/js/cusdis.es.js';
         cusdisScript.async = true;
         cusdisScript.defer = true;
         document.body.appendChild(cusdisScript);
 
-        // Cusdis 暗亮主题切换
-        function updateCusdisTheme(theme) {
-            const iframe = document.querySelector('iframe[title="cusdis"]');
-            if (iframe) {
-                iframe.contentWindow.postMessage({
-                    from: 'cusdis',
-                    event: 'change_theme',
-                    theme: theme === 'dark' ? 'dark' : 'light'
-                }, '*');
+        // Cusdis iframe 是 srcdoc 形式，与页面同源 → 可直接注入样式修深色模式
+        const CUSDIS_PATCH_CSS = `
+            :root { color-scheme: light; }
+            .dark { color-scheme: dark; }
+            /* 评论区整体底色：不透出页面深底，形成独立卡片 */
+            #root > div { background: #17172e !important; }
+            html, body { background: transparent; }
+            .dark input, .dark textarea { color-scheme: dark; }
+            input[type="text"], input[type="email"], textarea {
+                border-radius: 8px;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+            input[type="text"], input[type="email"] { min-height: 42px; }
+            textarea { min-height: 130px; resize: vertical; }
+            .dark input[type="text"], .dark input[type="email"], .dark textarea {
+                background: #14142b;
+                border-color: #7a7ab8 !important;
+                color: #e4e4ed;
+                caret-color: #a78bfa;
+            }
+            .dark input:hover, .dark textarea:hover { border-color: #a78bfa !important; }
+            .dark input:focus, .dark textarea:focus {
+                border-color: #a78bfa !important;
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(124,58,237,.3);
+            }
+            .dark label { color: #e2e2ec !important; }
+            /* 评论者名字提亮，时间戳略暗，层级分明 */
+            .dark .font-medium { color: #f0f0f8 !important; font-weight: 600; }
+            .dark div[class*="text-gray"] { color: #b6bccb !important; }
+            .dark div[class*="text-gray-400"], .dark div[class*="text-gray-500"] { color: #9aa1b8 !important; }
+            .dark div[class*="text-gray"] a { color: #a78bfa !important; }
+            /* 评论条目分隔线 */
+            .dark .my-4 { border-top: 1px solid rgba(255,255,255,.1); padding-top: 14px; }
+            .dark .my-4:first-child { border-top: none; padding-top: 0; }
+            button { border-radius: 8px; cursor: pointer; transition: all .2s; }
+            .dark button[class*="bg-gray-200"] {
+                background: #2d2d44 !important;
+                color: #e4e4ed !important;
+                border: 1px solid #63639c;
+                padding: 8px 18px !important;
+            }
+            .dark button[class*="bg-gray-200"]:hover {
+                background: #7c3aed !important;
+                border-color: #7c3aed !important;
+            }
+            /* Reply 按钮：有交互感 */
+            .dark button[class*="text-gray-500"] {
+                color: #a78bfa !important;
+                border: 1px solid transparent;
+                padding: 4px 10px;
+            }
+            .dark button[class*="text-gray-500"]:hover {
+                border-color: #63639c;
+                background: #20203c;
+            }
+            .dark .border-gray-200 { border-color: #4a4a78 !important; }
+            .dark .border-l-2 { border-color: #4a4a78 !important; }
+        `;
+
+        function injectCusdisStyles() {
+            const iframe = cusdisThread.querySelector('iframe');
+            if (!iframe) return;
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                let style = doc.getElementById('cusdis-patch');
+                if (!style) {
+                    style = doc.createElement('style');
+                    style.id = 'cusdis-patch';
+                    doc.head.appendChild(style);
+                }
+                style.textContent = CUSDIS_PATCH_CSS;
+            } catch (e) {
+                // 同源注入失败就退回官方深色主题
             }
         }
 
-        // 监听主题切换
+        function updateCusdisTheme(theme) {
+            cusdisThread.dataset.theme = theme;
+            if (window.CUSDIS && window.CUSDIS.setTheme) {
+                window.CUSDIS.setTheme(theme); // 官方 API：发 setTheme 消息
+            }
+            injectCusdisStyles();
+        }
+
+        // 等 iframe 出现后注入样式 + 高度兜底
+        new MutationObserver(() => {
+            const iframe = cusdisThread.querySelector('iframe');
+            if (iframe && !iframe.dataset.patched) {
+                iframe.dataset.patched = '1';
+                iframe.addEventListener('load', injectCusdisStyles);
+                injectCusdisStyles();
+                // 官方 resize 消息有时不生效（iframe 内容高 > 父页面给的 150px）→ 同源直接读高度并同步
+                const syncHeight = () => {
+                    try {
+                        const doc = iframe.contentDocument || iframe.contentWindow.document;
+                        const h = doc.documentElement.scrollHeight;
+                        if (h > 50 && Math.abs(h - iframe.offsetHeight) > 2) {
+                            iframe.style.height = h + 'px';
+                        }
+                    } catch (e) {}
+                };
+                const timer = setInterval(() => {
+                    if (!document.body.contains(iframe)) { clearInterval(timer); return; }
+                    syncHeight();
+                }, 600);
+                syncHeight();
+                setTimeout(() => clearInterval(timer), 60000); // 1 分钟后停止轮询
+            }
+        }).observe(cusdisThread, { childList: true, subtree: true });
+
+        // 主题切换时同步 Cusdis
         toggle.addEventListener('click', () => {
-            setTimeout(() => {
-                const newTheme = html.getAttribute('data-theme');
-                updateCusdisTheme(newTheme);
-            }, 1000);
+            setTimeout(() => updateCusdisTheme(html.getAttribute('data-theme')), 300);
         });
 
         // ═══════════════════════════════════════
