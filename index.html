@@ -550,16 +550,7 @@
                 <p>随手记的东西</p>
             </div>
             <div class="posts-grid">
-                                <article class="post-card fade-in" data-article="test-post">
-                    <div class="post-meta">
-                        <span>2026.08.15</span>
-                        <span class="tag">测试</span>
-                    </div>
-                    <h3>测试文章</h3>
-                    <p>后台测试文章</p>
-                </article>
-
-                <article class="post-card fade-in" data-article="desktop">
+                                <article class="post-card fade-in" data-article="desktop">
                     <div class="post-meta">
                         <span>2026.08.15</span>
                         <span class="tag">开发</span>
@@ -616,12 +607,7 @@
     </div>
 
     <!-- Article bodies -->
-        <div id="article-test-post" hidden>
-        <p>这是第一段测试内容。</p>
-        <p>这是第二段 <code>code</code> 测试。</p>
-    </div>
-
-    <div id="article-desktop" hidden>
+        <div id="article-desktop" hidden>
         <p>一直觉得我的 AI 助手 OpenClaw 用起来有点麻烦，每次都要开浏览器、连网关。就想着给它做个桌面应用。</p>
         <p>于是今天开始学 Rust，用 Tauri 做了个壳。大概过程：装环境 → 搭项目 → 把 Control UI 嵌进去（用的 WebView2，界面跟网页版一模一样）→ 做托盘图标 → 弄开机自启。</p>
         <p>最折腾的是“网关守护”。想加个功能：网关挂了自动重启。结果用 <code>openclaw gateway start</code> 做自动拉起，踩了个大坑——这个命令会先把正在跑的网关杀掉再重启，启动又要 40 秒，检测逻辑以为网关一直没起来，又触发一次……无限循环，网页版就一直显示“gateway 已断开”。搞到凌晨才发现是这行命令的问题。</p>
