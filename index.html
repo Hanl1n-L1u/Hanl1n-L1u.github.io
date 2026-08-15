@@ -559,7 +559,7 @@
                     <p>今天学了下 Rust，用 Tauri 给 OpenClaw 做了个桌面应用。踩了个大坑，记录一下。</p>
                 </article>
 
-                <article class="post-card fade-in" data-article="hello">
+                <article class="post-card fade-in">
                     <div class="post-meta">
                         <span>2026.07.27</span>
                         <span class="tag">开张</span>
@@ -613,10 +613,6 @@
         <p>最折腾的是“网关守护”。想加个功能：网关挂了自动重启。结果用 <code>openclaw gateway start</code> 做自动拉起，踩了个大坑——这个命令会先把正在跑的网关杀掉再重启，启动又要 40 秒，检测逻辑以为网关一直没起来，又触发一次……无限循环，网页版就一直显示“gateway 已断开”。搞到凌晨才发现是这行命令的问题。</p>
         <p>现在桌面版基本能用了：双击打开、托盘常驻、开机自启。守护逻辑的坑记下了，回头改成“先探测端口，真挂了才拉”。</p>
         <p>第一次接触 Rust。</p>
-    </div>
-
-    <div id="article-hello" hidden>
-        <p>1</p>
     </div>
 <script>
         // ═══════════════════════════════════════
