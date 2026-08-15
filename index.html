@@ -696,15 +696,9 @@
             return `
             :root { color-scheme: light; }
             .dark { color-scheme: dark; }
-            /* iframe 背景 = 外层卡片底色，内外颜色完全一致；过渡与页面同节奏，切换无间隙 */
+            /* iframe 背景 = 外层卡片底色，内外颜色完全一致；字体+背景同时瞬间切换，无延迟无间隙 */
             html, body {
                 background: ${cardBg} !important;
-                transition: background-color .15s cubic-bezier(.4,0,.2,1) !important;
-            }
-            #root > div { transition: background-color .15s cubic-bezier(.4,0,.2,1) !important; }
-            /* 文字/边框颜色瞬间切换（无过渡），背景 0.15s 渐变跟随 */
-            .dark input, .dark textarea, .dark label, .dark div, .dark button, .dark span, .dark a {
-                transition: background-color .15s cubic-bezier(.4,0,.2,1) !important;
             }
             .dark input, .dark textarea { color-scheme: dark; }
             input[type="text"], input[type="email"], textarea {
