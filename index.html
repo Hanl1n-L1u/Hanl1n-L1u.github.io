@@ -699,12 +699,12 @@
             /* iframe 背景 = 外层卡片底色，内外颜色完全一致；过渡与页面同节奏，切换无间隙 */
             html, body {
                 background: ${cardBg} !important;
-                transition: background-color .3s cubic-bezier(.4,0,.2,1), color .3s cubic-bezier(.4,0,.2,1) !important;
+                transition: background-color .15s cubic-bezier(.4,0,.2,1) !important;
             }
-            #root > div { transition: background-color .3s cubic-bezier(.4,0,.2,1) !important; }
-            /* 所有文字/边框颜色与页面同节奏过渡，切换无间隙 */
+            #root > div { transition: background-color .15s cubic-bezier(.4,0,.2,1) !important; }
+            /* 文字/边框颜色瞬间切换（无过渡），背景 0.15s 渐变跟随 */
             .dark input, .dark textarea, .dark label, .dark div, .dark button, .dark span, .dark a {
-                transition: background-color .3s cubic-bezier(.4,0,.2,1), color .3s cubic-bezier(.4,0,.2,1), border-color .3s cubic-bezier(.4,0,.2,1) !important;
+                transition: background-color .15s cubic-bezier(.4,0,.2,1) !important;
             }
             .dark input, .dark textarea { color-scheme: dark; }
             input[type="text"], input[type="email"], textarea {
@@ -790,10 +790,13 @@
                 doc.documentElement.style.colorScheme = theme;
                 doc.documentElement.style.setProperty('color-scheme', theme);
             }
-            // 官方消息也发一份，保持 iframe 内部状态同步（幂等）
-            if (window.CUSDIS && window.CUSDIS.setTheme) {
-                window.CUSDIS.setTheme(theme);
-            }
+            // 官方消息延迟 500ms 再发（等本地过渡完成），只用于同步 Svelte 内部状态，不打断视觉过渡
+            clearTimeout(window.__cusdisThemeSync);
+            window.__cusdisThemeSync = setTimeout(() => {
+                if (window.CUSDIS && window.CUSDIS.setTheme) {
+                    window.CUSDIS.setTheme(html.getAttribute('data-theme'));
+                }
+            }, 500);
             injectCusdisStyles();
         }
 
