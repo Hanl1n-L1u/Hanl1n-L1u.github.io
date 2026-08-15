@@ -2,7 +2,7 @@
 /**
  * 博客后台管理服务
  * 用法: node admin/admin.mjs [端口]
- * 默认 http://localhost:8765
+ * 默认 http://localhost:8888
  */
 import http from 'http';
 import fs from 'fs';
@@ -13,7 +13,7 @@ import { execSync } from 'child_process';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(__dirname, '..');
 const DATA = path.join(__dirname, 'articles.json');
-const PORT = parseInt(process.argv[2] || '8765', 10);
+const PORT = parseInt(process.argv[2] || '8888', 10);
 
 function readData() {
   return JSON.parse(fs.readFileSync(DATA, 'utf8'));
@@ -99,7 +99,7 @@ const server = http.createServer(async (req, res) => {
       }
       writeData(data);
       build();
-      const msg = body.isNew ? `新文章: ${article.title}` : `更新文章: ${article.title}`;
+      const msg = body.isNew ? `Add article: ${article.title}` : `Update article: ${article.title}`;
       try { gitPush(msg); } catch (e) { console.error('push 失败:', e.message); }
       return json(res, 200, { ok: true, article, push: gitStatus() });
     }
@@ -116,7 +116,7 @@ const server = http.createServer(async (req, res) => {
       data.articles = reordered;
       writeData(data);
       build();
-      try { gitPush('调整文章顺序'); } catch (e) { console.error('push 失败:', e.message); }
+      try { gitPush('Reorder articles'); } catch (e) { console.error('push 失败:', e.message); }
       return json(res, 200, { ok: true, push: gitStatus() });
     }
     if (p.startsWith('/api/articles/') && req.method === 'DELETE') {
@@ -127,7 +127,7 @@ const server = http.createServer(async (req, res) => {
       const [removed] = data.articles.splice(idx, 1);
       writeData(data);
       build();
-      try { gitPush(`删除文章: ${removed.title}`); } catch (e) { console.error('push 失败:', e.message); }
+      try { gitPush(`Delete article: ${removed.title}`); } catch (e) { console.error('push 失败:', e.message); }
       return json(res, 200, { ok: true, push: gitStatus() });
     }
     return json(res, 404, { ok: false, error: 'not found' });
