@@ -37,7 +37,10 @@
     background: var(--card); border: 1px solid var(--border); border-radius: 12px;
     padding: 20px 24px; margin-bottom: 16px;
   }
-  .list-item { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .list-item { display: flex; align-items: center; justify-content: space-between; gap: 16px; cursor: grab; }
+  .list-item.dragging { opacity: .5; border-color: var(--accent); }
+  .list-item.drag-over { border-top: 2px solid var(--accent-light); }
+  .drag-handle { color: var(--muted); font-size: 1rem; cursor: grab; user-select: none; flex-shrink: 0; }
   .list-item .info { flex: 1; min-width: 0; }
   .list-item .title { font-weight: 600; font-size: .95rem; }
   .list-item .sub { color: var(--muted); font-size: .78rem; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -79,7 +82,12 @@
     <div style="display:flex; justify-content:flex-end; margin-bottom:16px;">
       <button class="btn" onclick="newArticle()">✏️ 写新文章</button>
     </div>
+    <div style="margin-bottom:12px; color:var(--muted); font-size:.78rem;">💡 拖动文章卡片可调整显示顺序（自动保存并发布）</div>
     <div id="list"></div>
+    <div class="card" style="margin-top:24px; text-align:center;">
+      <a class="btn ghost" href="https://cusdis.com/dashboard/project/3a0a1bb6-e059-4cec-8b34-de004aa8b968" target="_blank" rel="noopener">💬 管理评论区（Cusdis 后台）</a>
+      <div style="color:var(--muted); font-size:.75rem; margin-top:8px;">审核/删除评论、管理回复</div>
+    </div>
   </div>
 
   <!-- 编辑视图 -->

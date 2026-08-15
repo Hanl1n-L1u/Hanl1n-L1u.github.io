@@ -103,6 +103,22 @@ const server = http.createServer(async (req, res) => {
       try { gitPush(msg); } catch (e) { console.error('push 失败:', e.message); }
       return json(res, 200, { ok: true, article, push: gitStatus() });
     }
+    if (p === '/api/reorder' && req.method === 'POST') {
+      const body = await readBody(req);
+      const order = Array.isArray(body.order) ? body.order : [];
+      const data = readData();
+      const byId = new Map(data.articles.map((a) => [a.id, a]));
+      const reordered = order.map((id) => byId.get(id)).filter(Boolean);
+      // 补上可能遗漏的文章（如新建但未拖过的）
+      for (const a of data.articles) {
+        if (!reordered.some((x) => x.id === a.id)) reordered.push(a);
+      }
+      data.articles = reordered;
+      writeData(data);
+      build();
+      try { gitPush('调整文章顺序'); } catch (e) { console.error('push 失败:', e.message); }
+      return json(res, 200, { ok: true, push: gitStatus() });
+    }
     if (p.startsWith('/api/articles/') && req.method === 'DELETE') {
       const id = decodeURIComponent(p.split('/').pop());
       const data = readData();

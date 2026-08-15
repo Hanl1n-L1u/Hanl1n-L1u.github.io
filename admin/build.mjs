@@ -16,7 +16,8 @@ const DATA = path.join(__dirname, 'articles.json');
 
 // ── 读取数据 ──
 const data = JSON.parse(fs.readFileSync(DATA, 'utf8'));
-const articles = (data.articles || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1));
+// 按数组顺序输出（支持后台拖拽排序；新文章默认追加到末尾）
+const articles = data.articles || [];
 
 // ── 生成文章卡片 ──
 function esc(s) {

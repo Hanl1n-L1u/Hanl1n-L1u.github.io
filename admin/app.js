@@ -35,8 +35,9 @@ async function loadList() {
     list.innerHTML = '<div class="empty">还没有文章，点击右上角"写新文章"开始 🚀</div>';
     return;
   }
-  list.innerHTML = articles.map((a) => `
-    <div class="card list-item">
+  list.innerHTML = articles.map((a, i) => `
+    <div class="card list-item" draggable="true" data-id="${esc(a.id)}" data-index="${i}" ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondragend="onDragEnd(event)">
+      <span class="drag-handle">⠿</span>
       <div class="info">
         <div class="title">${esc(a.title)}<span class="tag">${esc(a.tag || '')}</span></div>
         <div class="sub">${esc(a.date)} · ${esc(a.summary || '（无摘要）')}</div>
@@ -46,6 +47,56 @@ async function loadList() {
         <button class="btn danger small" onclick="deleteArticle('${esc(a.id)}')">删除</button>
       </div>
     </div>`).join('');
+}
+
+// ── 拖拽排序 ──
+let dragId = null;
+
+function onDragStart(e) {
+  dragId = e.currentTarget.dataset.id;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', dragId);
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const target = e.currentTarget;
+  if (target.dataset.id === dragId) return;
+  const list = document.getElementById('list');
+  const dragging = document.querySelector('.list-item.dragging');
+  if (!dragging) return;
+  const rect = target.getBoundingClientRect();
+  const after = e.clientY > rect.top + rect.height / 2;
+  if (after) {
+    if (target.nextElementSibling !== dragging) list.insertBefore(dragging, target.nextElementSibling);
+  } else {
+    if (target !== dragging) list.insertBefore(dragging, target);
+  }
+}
+
+function onDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  dragId = null;
+  saveOrder();
+}
+
+async function saveOrder() {
+  const ids = [...document.querySelectorAll('#list .list-item')].map((el) => el.dataset.id);
+  if (!ids.length) return;
+  try {
+    const j = await api('/api/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order: ids }),
+    });
+    msg('🔀 顺序已保存并推送');
+    loadList();
+    loadStatus();
+  } catch (err) {
+    msg('❌ 保存顺序失败: ' + err.message, false);
+  }
 }
 
 function esc(s) {
