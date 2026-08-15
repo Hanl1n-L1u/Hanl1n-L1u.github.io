@@ -6,9 +6,10 @@
     <title>Hanlin 的博客</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Cusdis 评论区：提前建连，减少刷新后的等待 -->
+    <!-- Cusdis 评论区：提前建连 + 预下载脚本，刷新后更快出现 -->
     <link rel="preconnect" href="https://cusdis.com" crossorigin>
     <link rel="dns-prefetch" href="https://cusdis.com">
+    <link rel="preload" href="https://cusdis.com/js/cusdis.es.js" as="script" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
     <style>
         /* ═══════════════════════════════════════
@@ -676,8 +677,14 @@
             comment_has_been_sent: '评论已发送，等待审核。'
         };
 
+        // 预热 Cusdis 评论 API 连接（响应不可缓存，但连接池复用能省掉 iframe 内 DNS+TLS 等待）
+        try {
+            fetch('https://cusdis.com/api/open/comments?page=1&appId=3a0a1bb6-e059-4cec-8b34-de004aa8b968&pageId=index', { mode: 'cors' }).catch(() => {});
+        } catch (e) {}
+
         const cusdisScript = document.createElement('script');
         cusdisScript.src = 'https://cusdis.com/js/cusdis.es.js';
+        cusdisScript.crossOrigin = 'anonymous'; // 与 head 里的 preload 一致，命中预下载缓存
         cusdisScript.async = true;
         document.body.appendChild(cusdisScript);
 
@@ -689,8 +696,16 @@
             return `
             :root { color-scheme: light; }
             .dark { color-scheme: dark; }
-            /* iframe 背景 = 外层卡片底色，内外颜色完全一致 */
-            html, body { background: ${cardBg} !important; }
+            /* iframe 背景 = 外层卡片底色，内外颜色完全一致；过渡与页面同节奏，切换无间隙 */
+            html, body {
+                background: ${cardBg} !important;
+                transition: background-color .3s cubic-bezier(.4,0,.2,1), color .3s cubic-bezier(.4,0,.2,1) !important;
+            }
+            #root > div { transition: background-color .3s cubic-bezier(.4,0,.2,1) !important; }
+            /* 所有文字/边框颜色与页面同节奏过渡，切换无间隙 */
+            .dark input, .dark textarea, .dark label, .dark div, .dark button, .dark span, .dark a {
+                transition: background-color .3s cubic-bezier(.4,0,.2,1), color .3s cubic-bezier(.4,0,.2,1), border-color .3s cubic-bezier(.4,0,.2,1) !important;
+            }
             .dark input, .dark textarea { color-scheme: dark; }
             input[type="text"], input[type="email"], textarea {
                 border-radius: 8px;
