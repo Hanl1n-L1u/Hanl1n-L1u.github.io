@@ -657,6 +657,22 @@
         // 初始主题写进 data-theme，iframe 一启动就是正确主题（官方只认 data-theme / setTheme 事件）
         cusdisThread.dataset.theme = html.getAttribute('data-theme');
 
+        // 中文化 Cusdis 界面文案（必须在加载 cusdis.es.js 之前设置）
+        window.CUSDIS_LOCALE = {
+            powered_by: '评论由 Cusdis 驱动',
+            post_comment: '发表评论',
+            loading: '加载中...',
+            email: '邮箱（选填）',
+            nickname: '昵称',
+            reply_placeholder: '写下你的评论...',
+            reply_btn: '回复',
+            sending: '发送中...',
+            mod_badge: '管理员',
+            content_is_required: '内容不能为空',
+            nickname_is_required: '请填写昵称',
+            comment_has_been_sent: '评论已发送，等待审核。'
+        };
+
         const cusdisScript = document.createElement('script');
         cusdisScript.src = 'https://cusdis.com/js/cusdis.es.js';
         cusdisScript.async = true;
@@ -664,12 +680,15 @@
         document.body.appendChild(cusdisScript);
 
         // Cusdis iframe 是 srcdoc 形式，与页面同源 → 可直接注入样式修深色模式
-        const CUSDIS_PATCH_CSS = `
+        function buildCusdisCss() {
+            // 读取页面卡片底色，iframe 背景设为完全相同的颜色 → 内外一致
+            // （不能透明：color-scheme:dark 时 Chromium 会把透明背景渲染成 UA 默认深黑）
+            const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#ffffff';
+            return `
             :root { color-scheme: light; }
             .dark { color-scheme: dark; }
-            /* 评论区整体底色：不透出页面深底，形成独立卡片 */
-            #root > div { background: #17172e !important; }
-            html, body { background: transparent; }
+            /* iframe 背景 = 外层卡片底色，内外颜色完全一致 */
+            html, body { background: ${cardBg} !important; }
             .dark input, .dark textarea { color-scheme: dark; }
             input[type="text"], input[type="email"], textarea {
                 border-radius: 8px;
@@ -679,7 +698,7 @@
             input[type="text"], input[type="email"] { min-height: 42px; }
             textarea { min-height: 130px; resize: vertical; }
             .dark input[type="text"], .dark input[type="email"], .dark textarea {
-                background: #14142b;
+                background: transparent;
                 border-color: #7a7ab8 !important;
                 color: #e4e4ed;
                 caret-color: #a78bfa;
@@ -723,6 +742,7 @@
             .dark .border-gray-200 { border-color: #4a4a78 !important; }
             .dark .border-l-2 { border-color: #4a4a78 !important; }
         `;
+        }
 
         function injectCusdisStyles() {
             const iframe = cusdisThread.querySelector('iframe');
@@ -735,7 +755,7 @@
                     style.id = 'cusdis-patch';
                     doc.head.appendChild(style);
                 }
-                style.textContent = CUSDIS_PATCH_CSS;
+                style.textContent = buildCusdisCss();
             } catch (e) {
                 // 同源注入失败就退回官方深色主题
             }
