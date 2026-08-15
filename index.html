@@ -6,6 +6,9 @@
     <title>Hanlin 的博客</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Cusdis 评论区：提前建连，减少刷新后的等待 -->
+    <link rel="preconnect" href="https://cusdis.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cusdis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
     <style>
         /* ═══════════════════════════════════════
@@ -559,7 +562,7 @@
                         <span class="tag">开张</span>
                     </div>
                     <h3>第一帖</h3>
-                    <p>搞了个站。互联网很大，有个自己的小角落还挺好的。以后慢慢往这儿堆东西吧。</p>
+                    <p>网站上线的第一天，以后慢慢往这儿堆东西吧。</p>
                 </article>
 
             </div>
@@ -676,7 +679,6 @@
         const cusdisScript = document.createElement('script');
         cusdisScript.src = 'https://cusdis.com/js/cusdis.es.js';
         cusdisScript.async = true;
-        cusdisScript.defer = true;
         document.body.appendChild(cusdisScript);
 
         // Cusdis iframe 是 srcdoc 形式，与页面同源 → 可直接注入样式修深色模式
@@ -763,8 +765,19 @@
 
         function updateCusdisTheme(theme) {
             cusdisThread.dataset.theme = theme;
+            const isDark = theme === 'dark';
+            // 直接操作 iframe 内 DOM（同源 srcdoc，零延迟），不依赖官方消息往返
+            const iframe = cusdisThread.querySelector('iframe');
+            if (iframe && iframe.contentDocument) {
+                const doc = iframe.contentDocument;
+                const rootDiv = doc.querySelector('#root > div');
+                if (rootDiv) rootDiv.classList.toggle('dark', isDark);
+                doc.documentElement.style.colorScheme = theme;
+                doc.documentElement.style.setProperty('color-scheme', theme);
+            }
+            // 官方消息也发一份，保持 iframe 内部状态同步（幂等）
             if (window.CUSDIS && window.CUSDIS.setTheme) {
-                window.CUSDIS.setTheme(theme); // 官方 API：发 setTheme 消息
+                window.CUSDIS.setTheme(theme);
             }
             injectCusdisStyles();
         }
@@ -795,9 +808,9 @@
             }
         }).observe(cusdisThread, { childList: true, subtree: true });
 
-        // 主题切换时同步 Cusdis
+        // 主题切换：立即同步 Cusdis（不延迟，避免切换慢半拍）
         toggle.addEventListener('click', () => {
-            setTimeout(() => updateCusdisTheme(html.getAttribute('data-theme')), 300);
+            updateCusdisTheme(html.getAttribute('data-theme'));
         });
 
         // ═══════════════════════════════════════
