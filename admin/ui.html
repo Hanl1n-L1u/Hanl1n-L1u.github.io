@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦀 博客后台</title>
+<style>
+  :root {
+    --bg: #0f0f1a; --card: #1a1a2e; --border: #2d2d44;
+    --text: #e4e4ed; --muted: #9ca3af; --accent: #7c3aed; --accent-light: #a78bfa;
+    --danger: #ef4444; --ok: #22c55e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+    min-height: 100vh; padding: 32px 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+  header h1 { font-size: 1.5rem; }
+  header .meta { color: var(--muted); font-size: .8rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 8px 16px; font-size: .85rem; cursor: pointer; transition: all .2s;
+    text-decoration: none;
+  }
+  .btn:hover { background: var(--accent-light); }
+  .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn.ghost:hover { border-color: var(--accent-light); color: var(--accent-light); }
+  .btn.danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+  .btn.danger:hover { background: rgba(239,68,68,.12); }
+  .btn.small { padding: 4px 10px; font-size: .75rem; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px 24px; margin-bottom: 16px;
+  }
+  .list-item { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .list-item .info { flex: 1; min-width: 0; }
+  .list-item .title { font-weight: 600; font-size: .95rem; }
+  .list-item .sub { color: var(--muted); font-size: .78rem; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .list-item .tag { background: var(--accent); color: #fff; padding: 1px 8px; border-radius: 999px; font-size: .68rem; margin-left: 8px; }
+  .list-item .actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .empty { color: var(--muted); text-align: center; padding: 40px 0; font-size: .9rem; }
+
+  form .field { margin-bottom: 14px; }
+  form label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: 4px; }
+  form input, form textarea, form select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); padding: 10px 12px; font-size: .9rem;
+    font-family: inherit; transition: border-color .2s;
+  }
+  form input:focus, form textarea:focus, form select:focus { outline: none; border-color: var(--accent); }
+  form textarea { resize: vertical; }
+  form .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .hint { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+  .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+  #msg { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 20px; font-size: .85rem; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 99; }
+  #msg.show { opacity: 1; }
+  #msg.ok { border-color: var(--ok); }
+  #msg.err { border-color: var(--danger); }
+  .back { margin-bottom: 16px; display: inline-block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🦀 博客后台</h1>
+    <div class="meta" id="gitStatus">加载中...</div>
+  </header>
+
+  <!-- 列表视图 -->
+  <div id="listView">
+    <div style="display:flex; justify-content:flex-end; margin-bottom:16px;">
+      <button class="btn" onclick="newArticle()">✏️ 写新文章</button>
+    </div>
+    <div id="list"></div>
+  </div>
+
+  <!-- 编辑视图 -->
+  <div id="editView" style="display:none;">
+    <a class="btn ghost back" href="javascript:showList()">← 返回列表</a>
+    <div class="card">
+      <form id="editForm">
+        <div class="field">
+          <label>标题</label>
+          <input type="text" id="f-title" required placeholder="文章标题">
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>日期</label>
+            <input type="text" id="f-date" placeholder="2026.08.15">
+          </div>
+          <div class="field">
+            <label>标签</label>
+            <input type="text" id="f-tag" placeholder="开发 / 随笔 / 生活">
+          </div>
+          <div class="field">
+            <label>ID（英文，改文章链接用）</label>
+            <input type="text" id="f-id" placeholder="my-post">
+          </div>
+        </div>
+        <div class="field">
+          <label>摘要（卡片上显示的一句话）</label>
+          <input type="text" id="f-summary" placeholder="一句话介绍这篇文章">
+        </div>
+        <div class="field">
+          <label>正文（每行一个段落，支持 &lt;code&gt; 等内联 HTML）</label>
+          <textarea id="f-content" rows="12" placeholder="第一段内容...&#10;第二段内容..."></textarea>
+          <div class="hint">每个空行分隔一个段落；可以写 <code>&lt;code&gt;xxx&lt;/code&gt;</code> 高亮代码。</div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn">💾 保存并发布</button>
+          <button type="button" class="btn ghost" onclick="showList()">取消</button>
+          <span style="flex:1"></span>
+          <button type="button" class="btn danger small" id="btnDelete" onclick="deleteArticle()" style="display:none;">🗑 删除</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div id="msg"></div>
+<script src="/app.js"></script>
+</body>
+</html>

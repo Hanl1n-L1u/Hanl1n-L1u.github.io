@@ -1,0 +1,128 @@
+#!/usr/bin/env node
+/**
+ * 博客后台管理服务
+ * 用法: node admin/admin.mjs [端口]
+ * 默认 http://localhost:8765
+ */
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REPO = path.resolve(__dirname, '..');
+const DATA = path.join(__dirname, 'articles.json');
+const PORT = parseInt(process.argv[2] || '8765', 10);
+
+function readData() {
+  return JSON.parse(fs.readFileSync(DATA, 'utf8'));
+}
+function writeData(d) {
+  fs.writeFileSync(DATA, JSON.stringify(d, null, 2) + '\n', 'utf8');
+}
+function build() {
+  execSync('node admin/build.mjs', { cwd: REPO, stdio: 'pipe' });
+}
+function gitPush(msg) {
+  const safe = String(msg).replace(/"/g, '\\"').replace(/`/g, '');
+  execSync(`git add index.html admin/articles.json && git commit -m "${safe}" && git push origin main`, {
+    cwd: REPO, stdio: 'pipe',
+  });
+}
+function gitStatus() {
+  try {
+    const out = execSync('git status --short --branch', { cwd: REPO, encoding: 'utf8' });
+    return out.trim();
+  } catch { return 'n/a'; }
+}
+
+function json(res, code, obj) {
+  const body = JSON.stringify(obj);
+  res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': Buffer.byteLength(body) });
+  res.end(body);
+}
+function readBody(req) {
+  return new Promise((resolve) => {
+    let d = '';
+    req.on('data', (c) => (d += c));
+    req.on('end', () => {
+      try { resolve(JSON.parse(d || '{}')); } catch { resolve({}); }
+    });
+  });
+}
+
+const server = http.createServer(async (req, res) => {
+  const url = new URL(req.url, `http://localhost:${PORT}`);
+  const p = url.pathname;
+
+  // ── 静态页面：管理界面 ──
+  if (p === '/' || p === '/index.html') {
+    const html = fs.readFileSync(path.join(__dirname, 'ui.html'), 'utf8');
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    return res.end(html);
+  }
+  if (p === '/app.js') {
+    const js = fs.readFileSync(path.join(__dirname, 'app.js'), 'utf8');
+    res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+    return res.end(js);
+  }
+
+  // ── API ──
+  try {
+    if (p === '/api/articles' && req.method === 'GET') {
+      const data = readData();
+      return json(res, 200, { ok: true, articles: data.articles });
+    }
+    if (p === '/api/status' && req.method === 'GET') {
+      return json(res, 200, { ok: true, status: gitStatus() });
+    }
+    if (p === '/api/articles' && req.method === 'POST') {
+      const body = await readBody(req);
+      const data = readData();
+      const now = new Date();
+      const date = body.date || `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+      const article = {
+        id: String(body.id || Date.now().toString(36)),
+        date,
+        tag: body.tag || '随笔',
+        title: body.title || '未命名',
+        summary: body.summary || '',
+        content: Array.isArray(body.content) ? body.content : String(body.content || '').split(/\r?\n/).filter((l) => l.trim()),
+      };
+      if (body.isNew) {
+        data.articles.push(article);
+      } else {
+        const idx = data.articles.findIndex((a) => a.id === body.id);
+        if (idx >= 0) data.articles[idx] = article;
+        else data.articles.push(article);
+      }
+      writeData(data);
+      build();
+      const msg = body.isNew ? `新文章: ${article.title}` : `更新文章: ${article.title}`;
+      try { gitPush(msg); } catch (e) { console.error('push 失败:', e.message); }
+      return json(res, 200, { ok: true, article, push: gitStatus() });
+    }
+    if (p.startsWith('/api/articles/') && req.method === 'DELETE') {
+      const id = decodeURIComponent(p.split('/').pop());
+      const data = readData();
+      const idx = data.articles.findIndex((a) => a.id === id);
+      if (idx < 0) return json(res, 404, { ok: false, error: '文章不存在' });
+      const [removed] = data.articles.splice(idx, 1);
+      writeData(data);
+      build();
+      try { gitPush(`删除文章: ${removed.title}`); } catch (e) { console.error('push 失败:', e.message); }
+      return json(res, 200, { ok: true, push: gitStatus() });
+    }
+    return json(res, 404, { ok: false, error: 'not found' });
+  } catch (e) {
+    console.error('API error:', e);
+    return json(res, 500, { ok: false, error: String(e.message || e) });
+  }
+});
+
+server.listen(PORT, () => {
+  console.log(`🦀 博客后台已启动: http://localhost:${PORT}`);
+  console.log(`   仓库: ${REPO}`);
+  console.log(`   Ctrl+C 停止`);
+});

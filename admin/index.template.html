@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanlin 的博客</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Cusdis 评论区：提前建连 + 预下载脚本，刷新后更快出现 -->
+    <link rel="preconnect" href="https://cusdis.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cusdis.com">
+    <link rel="preload" href="https://cusdis.com/js/cusdis.es.js" as="script" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════
+           Reset & Base
+           ═══════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #faf9f7;
+            --bg-card: #ffffff;
+            --bg-hover: #f3f1ed;
+            --text: #1a1a2e;
+            --text-secondary: #6b7280;
+            --border: #e5e3df;
+            --accent: #7c3aed;
+            --accent-light: #a78bfa;
+            --hero-from: #667eea;
+            --hero-to: #764ba2;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+            --shadow-hover: 0 10px 25px rgba(0,0,0,.08);
+            --transition: .3s cubic-bezier(.4,0,.2,1);
+            --theme-transition: .25s cubic-bezier(.4,0,.2,1);
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f0f1a;
+            --bg-card: #1a1a2e;
+            --bg-hover: #252540;
+            --text: #e4e4ed;
+            --text-secondary: #9ca3af;
+            --border: #2d2d44;
+            --shadow: 0 1px 3px rgba(0,0,0,.2);
+            --shadow-hover: 0 10px 25px rgba(0,0,0,.3);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            transition: background-color var(--theme-transition), color var(--theme-transition);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══════════════════════════════════════
+           Theme Toggle
+           ═══════════════════════════════════════ */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 24px;
+            z-index: 100;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            transition: background-color var(--theme-transition), color var(--theme-transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+            box-shadow: var(--shadow);
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            border-color: var(--accent-light);
+        }
+
+        /* ═══════════════════════════════════════
+           Hero
+           ═══════════════════════════════════════ */
+        .hero {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 24px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(135deg, var(--hero-from) 0%, var(--hero-to) 100%);
+            opacity: 0.08;
+            animation: hero-orbit 20s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        @keyframes hero-orbit {
+            0%   { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-5%, 5%) rotate(3deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .avatar {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 36px;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 8px 30px rgba(124,58,237,.25);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            letter-spacing: -.03em;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            color: var(--text-secondary);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .hero-social {
+            margin-top: 32px;
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .hero-social a {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            display: grid;
+            place-items: center;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 18px;
+            transition: background-color var(--theme-transition), color var(--theme-transition), border-color var(--theme-transition), box-shadow var(--theme-transition), transform var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-social a:hover {
+            border-color: var(--accent-light);
+            color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .scroll-indicator {
+            margin-top: 60px;
+            animation: bounce 2s infinite;
+            color: var(--text-secondary);
+            font-size: 20px;
+            opacity: .5;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(8px); }
+        }
+
+        /* ═══════════════════════════════════════
+           Container
+           ═══════════════════════════════════════ */
+        .container {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ═══════════════════════════════════════
+           Section Header
+           ═══════════════════════════════════════ */
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            margin-bottom: 8px;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: .95rem;
+        }
+
+        /* ═══════════════════════════════════════
+           About
+           ═══════════════════════════════════════ */
+        .about-section {
+            padding: 80px 0 40px;
+        }
+
+        .about-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px 40px;
+            box-shadow: var(--shadow);
+            transition: background-color var(--theme-transition), border-color var(--theme-transition), box-shadow var(--theme-transition);
+        }
+
+        .about-card p {
+            color: var(--text-secondary);
+            font-size: .95rem;
+        }
+
+        .about-card p + p {
+            margin-top: 12px;
+        }
+
+        /* ═══════════════════════════════════════
+           Blog Posts Grid
+           ═══════════════════════════════════════ */
+        .blog-section {
+            padding: 60px 0 100px;
+        }
+
+        .posts-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            cursor: pointer;
+            transition: background-color var(--theme-transition), color var(--theme-transition), border-color var(--theme-transition), box-shadow var(--theme-transition), transform var(--transition);
+            box-shadow: var(--shadow);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .post-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--accent-light);
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .post-meta .tag {
+            background: var(--accent);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 999px;
+            font-size: .7rem;
+            font-weight: 500;
+            letter-spacing: .02em;
+        }
+
+        .post-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .post-card p {
+            font-size: .9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ═══════════════════════════════════════
+           Comments
+           ═══════════════════════════════════════ */
+        .comments-section {
+            padding: 60px 0 40px;
+        }
+
+        .comments-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px 40px;
+            box-shadow: var(--shadow);
+            transition: background-color var(--theme-transition), border-color var(--theme-transition), box-shadow var(--theme-transition);
+        }
+
+        /* 深色模式下评论卡片边框更清晰 */
+        [data-theme="dark"] .comments-wrapper {
+            border-color: #4a4a72;
+            box-shadow: 0 0 0 1px rgba(124,58,237,.22), var(--shadow-hover);
+        }
+
+        /* 深色模式下页面滚动条 */
+        [data-theme="dark"] ::-webkit-scrollbar { width: 10px; height: 10px; }
+        [data-theme="dark"] ::-webkit-scrollbar-track { background: #14142b; }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #3a3a5e;
+            border-radius: 6px;
+            border: 2px solid #14142b;
+        }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #4a4a72; }
+        [data-theme="dark"] { scrollbar-color: #3a3a5e #14142b; }
+
+        .comments-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .comments-header h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .comments-manage {
+            font-size: .8rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            transition: background-color var(--theme-transition), color var(--theme-transition), border-color var(--theme-transition);
+        }
+
+        .comments-manage:hover {
+            border-color: var(--accent-light);
+            color: var(--accent);
+        }
+
+        .comments-note {
+            font-size: .8rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-light);
+            line-height: 1.6;
+        }
+
+        .comments-note strong {
+            color: var(--text);
+        }
+
+        .utterances-frame, .utterances {
+            max-width: 100% !important;
+        }
+
+        @media (max-width: 600px) {
+            .comments-wrapper { padding: 24px 20px; }
+        }
+
+        /* ═══════════════════════════════════════
+           Footer
+           ═══════════════════════════════════════ */
+        footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: .85rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ═══════════════════════════════════════
+           Fade-in Entry
+           ═══════════════════════════════════════ */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn .6s ease forwards;
+        }
+
+        .fade-in:nth-child(1) { animation-delay: .1s; }
+        .fade-in:nth-child(2) { animation-delay: .2s; }
+        .fade-in:nth-child(3) { animation-delay: .3s; }
+        .fade-in:nth-child(4) { animation-delay: .4s; }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ═══════════════════════════════════════
+           Article Modal
+           ═══════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 24px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            max-width: 720px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 32px 36px;
+            box-shadow: var(--shadow-hover);
+            position: relative;
+            transition: background-color var(--theme-transition), border-color var(--theme-transition), color var(--theme-transition), box-shadow var(--theme-transition);
+        }
+        .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            line-height: 1;
+            transition: color var(--transition);
+        }
+        .modal-close:hover { color: var(--text); }
+        .modal h3 { font-size: 1.4rem; margin-bottom: 6px; }
+        .modal-meta { font-size: .8rem; color: var(--text-secondary); margin-bottom: 18px; }
+        .modal-content p {
+            color: var(--text-secondary);
+            font-size: .95rem;
+            line-height: 1.8;
+        }
+        .modal-content p + p { margin-top: 14px; }
+        .modal-content code {
+            background: var(--bg-hover);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: .85em;
+        }
+
+        /* ═══════════════════════════════════════
+           Responsive
+           ═══════════════════════════════════════ */
+        @media (max-width: 600px) {
+            .about-card { padding: 24px 20px; }
+            .post-card  { padding: 20px 20px; }
+            .hero       { min-height: 60vh; padding: 60px 20px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+
+    <!-- ══════════════════ Hero ══════════════════ -->
+    <section class="hero">
+        <div class="hero-content fade-in">
+            <div class="avatar">H</div>
+            <h1>Hanlin的小窝</h1>
+            <div class="hero-social">
+                <a href="mailto:liuhanlinmalaysia@gmail.com" aria-label="Email">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </a>
+                <a href="https://twitter.com/LHL28383661" target="_blank" rel="noopener" aria-label="Twitter">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+                </a>
+                <a href="https://instagram.com/liu_hanlin1" target="_blank" rel="noopener" aria-label="Instagram">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                </a>
+            </div>
+        </div>
+        <div class="scroll-indicator">↓</div>
+    </section>
+
+    <!-- ══════════════════ About ══════════════════ -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>关于我</h2>
+                <p>简单介绍</p>
+            </div>
+            <div class="about-card fade-in">
+                <p>你好，我是 Hanlin。这是我的个人博客，记录生活和学到的技术。</p>
+                <p>内容不固定，想到什么写什么，大多是随手记的东西。</p>
+                <p>有问题或者想聊两句，欢迎在评论区留言。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════ Blog ══════════════════ -->
+    <section class="blog-section" id="blog">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>文章</h2>
+                <p>随手记的东西</p>
+            </div>
+            <div class="posts-grid">
+                <!-- __POSTS_GRID__ -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════ Comments ══════════════════ -->
+    <section class="comments-section" id="comments">
+        <div class="container">
+            <div class="comments-wrapper fade-in">
+                <div class="comments-header">
+                    <h2>💬 评论区</h2>
+                </div>
+                <div id="cusdis_thread"
+                  data-host="https://cusdis.com"
+                  data-app-id="3a0a1bb6-e059-4cec-8b34-de004aa8b968"
+                  data-page-id="index"
+                  data-page-url="https://liuhanlin.xyz"
+                  data-page-title="Hanlin的小窝">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════ Footer ══════════════════ -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 <a href="https://liuhanlin.xyz">liuhanlin.xyz</a></p>
+        </div>
+    </footer>
+
+    <!-- Article Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+            <h3 id="modalTitle"></h3>
+            <div class="modal-meta" id="modalMeta"></div>
+            <div class="modal-content" id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Article bodies -->
+    <!-- __ARTICLE_BODIES__ -->
+<script>
+        // ═══════════════════════════════════════
+        // Theme Toggle
+        // ═══════════════════════════════════════
+        const toggle = document.getElementById('themeToggle');
+        const html   = document.documentElement;
+
+        // Respect system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const stored = localStorage.getItem('theme');
+        const currentTheme = stored || (prefersDark ? 'dark' : 'light');
+        html.setAttribute('data-theme', currentTheme);
+        toggle.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+
+        toggle.addEventListener('click', () => {
+            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            toggle.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+
+        // ═══════════════════════════════════════
+        // Scroll observer for fade-in
+        // ═══════════════════════════════════════
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: .15 });
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            el.style.animationPlayState = 'paused';
+            observer.observe(el);
+        });
+
+
+
+        // ═══════════════════════════════════════
+        // Cusdis (评论区)
+        // ═══════════════════════════════════════
+        const cusdisThread = document.getElementById('cusdis_thread');
+        // 初始主题写进 data-theme，iframe 一启动就是正确主题（官方只认 data-theme / setTheme 事件）
+        cusdisThread.dataset.theme = html.getAttribute('data-theme');
+
+        // 中文化 Cusdis 界面文案（必须在加载 cusdis.es.js 之前设置）
+        window.CUSDIS_LOCALE = {
+            powered_by: '评论由 Cusdis 驱动',
+            post_comment: '发表评论',
+            loading: '加载中...',
+            email: '邮箱（选填）',
+            nickname: '昵称',
+            reply_placeholder: '写下你的评论...',
+            reply_btn: '回复',
+            sending: '发送中...',
+            mod_badge: '管理员',
+            content_is_required: '内容不能为空',
+            nickname_is_required: '请填写昵称',
+            comment_has_been_sent: '评论已发送，等待审核。'
+        };
+
+        // 预热 Cusdis 评论 API 连接（响应不可缓存，但连接池复用能省掉 iframe 内 DNS+TLS 等待）
+        try {
+            fetch('https://cusdis.com/api/open/comments?page=1&appId=3a0a1bb6-e059-4cec-8b34-de004aa8b968&pageId=index', { mode: 'cors' }).catch(() => {});
+        } catch (e) {}
+
+        const cusdisScript = document.createElement('script');
+        cusdisScript.src = 'https://cusdis.com/js/cusdis.es.js';
+        cusdisScript.crossOrigin = 'anonymous'; // 与 head 里的 preload 一致，命中预下载缓存
+        cusdisScript.async = true;
+        document.body.appendChild(cusdisScript);
+
+        // Cusdis iframe 是 srcdoc 形式，与页面同源 → 可直接注入样式修深色模式
+        function buildCusdisCss() {
+            // 读取页面卡片底色，iframe 背景设为完全相同的颜色 → 内外一致
+            // （不能透明：color-scheme:dark 时 Chromium 会把透明背景渲染成 UA 默认深黑）
+            const cardBg = getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#ffffff';
+            return `
+            :root { color-scheme: light; }
+            .dark { color-scheme: dark; }
+            /* iframe 背景 = 外层卡片底色；与页面同一 0.25s 过渡，全站同步渐变 */
+            html, body {
+                background: ${cardBg} !important;
+                transition: background-color .25s cubic-bezier(.4,0,.2,1), color .25s cubic-bezier(.4,0,.2,1) !important;
+            }
+            #root > div { transition: background-color .25s cubic-bezier(.4,0,.2,1) !important; }
+            .dark input, .dark textarea, .dark label, .dark div, .dark button, .dark span, .dark a {
+                transition: background-color .25s cubic-bezier(.4,0,.2,1), color .25s cubic-bezier(.4,0,.2,1), border-color .25s cubic-bezier(.4,0,.2,1) !important;
+            }
+            .dark input, .dark textarea { color-scheme: dark; }
+            input[type="text"], input[type="email"], textarea {
+                border-radius: 8px;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+            input[type="text"], input[type="email"] { min-height: 42px; }
+            textarea { min-height: 130px; resize: vertical; }
+            .dark input[type="text"], .dark input[type="email"], .dark textarea {
+                background: transparent;
+                border-color: #7a7ab8 !important;
+                color: #e4e4ed;
+                caret-color: #a78bfa;
+            }
+            .dark input:hover, .dark textarea:hover { border-color: #a78bfa !important; }
+            .dark input:focus, .dark textarea:focus {
+                border-color: #a78bfa !important;
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(124,58,237,.3);
+            }
+            .dark label { color: #e2e2ec !important; }
+            /* 评论者名字提亮，时间戳略暗，层级分明 */
+            .dark .font-medium { color: #f0f0f8 !important; font-weight: 600; }
+            .dark div[class*="text-gray"] { color: #b6bccb !important; }
+            .dark div[class*="text-gray-400"], .dark div[class*="text-gray-500"] { color: #9aa1b8 !important; }
+            .dark div[class*="text-gray"] a { color: #a78bfa !important; }
+            /* 评论条目分隔线 */
+            .dark .my-4 { border-top: 1px solid rgba(255,255,255,.1); padding-top: 14px; }
+            .dark .my-4:first-child { border-top: none; padding-top: 0; }
+            button { border-radius: 8px; cursor: pointer; transition: all .2s; }
+            .dark button[class*="bg-gray-200"] {
+                background: #2d2d44 !important;
+                color: #e4e4ed !important;
+                border: 1px solid #63639c;
+                padding: 8px 18px !important;
+            }
+            .dark button[class*="bg-gray-200"]:hover {
+                background: #7c3aed !important;
+                border-color: #7c3aed !important;
+            }
+            /* Reply 按钮：有交互感 */
+            .dark button[class*="text-gray-500"] {
+                color: #a78bfa !important;
+                border: 1px solid transparent;
+                padding: 4px 10px;
+            }
+            .dark button[class*="text-gray-500"]:hover {
+                border-color: #63639c;
+                background: #20203c;
+            }
+            .dark .border-gray-200 { border-color: #4a4a78 !important; }
+            .dark .border-l-2 { border-color: #4a4a78 !important; }
+        `;
+        }
+
+        function injectCusdisStyles() {
+            const iframe = cusdisThread.querySelector('iframe');
+            if (!iframe) return;
+            try {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                let style = doc.getElementById('cusdis-patch');
+                if (!style) {
+                    style = doc.createElement('style');
+                    style.id = 'cusdis-patch';
+                    doc.head.appendChild(style);
+                }
+                style.textContent = buildCusdisCss();
+            } catch (e) {
+                // 同源注入失败就退回官方深色主题
+            }
+        }
+
+        function updateCusdisTheme(theme) {
+            cusdisThread.dataset.theme = theme;
+            const isDark = theme === 'dark';
+            // 直接操作 iframe 内 DOM（同源 srcdoc，零延迟）→ 文字+背景瞬间切换
+            const iframe = cusdisThread.querySelector('iframe');
+            if (iframe && iframe.contentDocument) {
+                const doc = iframe.contentDocument;
+                const rootDiv = doc.querySelector('#root > div');
+                if (rootDiv) rootDiv.classList.toggle('dark', isDark);
+                doc.documentElement.style.colorScheme = theme;
+                doc.documentElement.style.setProperty('color-scheme', theme);
+            }
+            // 官方消息立即发：同步 Svelte 内部状态，防止后续异步更新（如评论加载完成）用旧状态撤销 dark class
+            if (window.CUSDIS && window.CUSDIS.setTheme) {
+                window.CUSDIS.setTheme(theme);
+            }
+            injectCusdisStyles();
+        }
+
+        // 等 iframe 出现后注入样式 + 高度兜底
+        new MutationObserver(() => {
+            const iframe = cusdisThread.querySelector('iframe');
+            if (iframe && !iframe.dataset.patched) {
+                iframe.dataset.patched = '1';
+                iframe.addEventListener('load', injectCusdisStyles);
+                injectCusdisStyles();
+                // 官方 resize 消息有时不生效（iframe 内容高 > 父页面给的 150px）→ 同源直接读高度并同步
+                const syncHeight = () => {
+                    try {
+                        const doc = iframe.contentDocument || iframe.contentWindow.document;
+                        const h = doc.documentElement.scrollHeight;
+                        if (h > 50 && Math.abs(h - iframe.offsetHeight) > 2) {
+                            iframe.style.height = h + 'px';
+                        }
+                    } catch (e) {}
+                };
+                const timer = setInterval(() => {
+                    if (!document.body.contains(iframe)) { clearInterval(timer); return; }
+                    syncHeight();
+                }, 600);
+                syncHeight();
+                setTimeout(() => clearInterval(timer), 60000); // 1 分钟后停止轮询
+            }
+        }).observe(cusdisThread, { childList: true, subtree: true });
+
+        // 主题切换：立即同步 Cusdis（不延迟，避免切换慢半拍）
+        toggle.addEventListener('click', () => {
+            updateCusdisTheme(html.getAttribute('data-theme'));
+        });
+
+        // ═══════════════════════════════════════
+        // Article Modal (点卡片看全文)
+        // ═══════════════════════════════════════
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalTitle   = document.getElementById('modalTitle');
+        const modalMeta    = document.getElementById('modalMeta');
+        const modalContent = document.getElementById('modalContent');
+
+        function closeModal() { modalOverlay.classList.remove('open'); }
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        document.querySelectorAll('.post-card[data-article]').forEach(card => {
+            card.addEventListener('click', () => {
+                const article = document.getElementById('article-' + card.dataset.article);
+                if (!article) return;
+                modalTitle.textContent = card.querySelector('h3').textContent;
+                modalMeta.textContent = card.querySelector('.post-meta').textContent.trim();
+                modalContent.innerHTML = article.innerHTML;
+                modalOverlay.classList.add('open');
+            });
+        });
+    </script>
+</body>
+</html>
