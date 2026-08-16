@@ -101,6 +101,11 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
     return res.end(js);
   }
+  if (p === '/favicon.png') {
+    const png = fs.readFileSync(path.join(REPO, 'favicon.png'));
+    res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' });
+    return res.end(png);
+  }
 
   // ── API ──
   try {
