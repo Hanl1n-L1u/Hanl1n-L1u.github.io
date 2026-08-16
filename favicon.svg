@@ -5,29 +5,6 @@
       <stop offset="1" stop-color="#a78bfa"/>
     </linearGradient>
   </defs>
-  <!-- 圆形背景（不是方角） -->
-  <circle cx="32" cy="32" r="30" fill="url(#bg)"/>
-  <!-- 左耳：圆润椭圆垂耳（画在脸后面） -->
-  <ellipse cx="11" cy="33" rx="7.5" ry="10.5" fill="#a16207" transform="rotate(-14 11 33)"/>
-  <!-- 右耳 -->
-  <ellipse cx="53" cy="33" rx="7.5" ry="10.5" fill="#a16207" transform="rotate(14 53 33)"/>
-  <!-- 内耳 -->
-  <ellipse cx="11.5" cy="35" rx="3.6" ry="5.6" fill="#fcd9b8" opacity=".9" transform="rotate(-14 11.5 35)"/>
-  <ellipse cx="52.5" cy="35" rx="3.6" ry="5.6" fill="#fcd9b8" opacity=".9" transform="rotate(14 52.5 35)"/>
-  <!-- 脸 -->
-  <circle cx="32" cy="38" r="19" fill="#fff8ee"/>
-  <!-- 眼睛 -->
-  <circle cx="25" cy="36" r="3.2" fill="#2d1b0e"/>
-  <circle cx="39" cy="36" r="3.2" fill="#2d1b0e"/>
-  <circle cx="26.2" cy="34.8" r="1.1" fill="#fff"/>
-  <circle cx="40.2" cy="34.8" r="1.1" fill="#fff"/>
-  <!-- 腮红 -->
-  <circle cx="19.5" cy="42" r="3.4" fill="#fda4af" opacity=".55"/>
-  <circle cx="44.5" cy="42" r="3.4" fill="#fda4af" opacity=".55"/>
-  <!-- 鼻子 -->
-  <ellipse cx="32" cy="42" rx="3.6" ry="2.6" fill="#2d1b0e"/>
-  <!-- 嘴 -->
-  <path d="M28.5 44.5 Q32 48 35.5 44.5" stroke="#2d1b0e" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-  <!-- 舌头 -->
-  <path d="M30.8 46.2 Q32 50.5 33.2 46.2 Z" fill="#fb7185"/>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <text x="32" y="45" font-size="38" text-anchor="middle">🐶</text>
 </svg>
