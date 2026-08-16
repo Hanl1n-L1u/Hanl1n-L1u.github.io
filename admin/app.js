@@ -27,6 +27,27 @@ async function loadStatus() {
   } catch { $('gitStatus').textContent = '无法连接后台'; }
 }
 
+// ── 访问统计（不蒜子） ──
+async function loadStats(manual = false) {
+  const body = $('statsBody');
+  if (!body) return;
+  try {
+    const r = await fetch('/api/stats');
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || '获取失败');
+    const fmt = (n) => Number(n || 0).toLocaleString('zh-CN');
+    body.innerHTML =
+      `<div class="stat"><div class="stat-num">${fmt(j.busuanzi_today_pv)}</div><div class="stat-label">今日访问</div></div>
+       <div class="stat"><div class="stat-num">${fmt(j.busuanzi_today_uv)}</div><div class="stat-label">今日访客</div></div>
+       <div class="stat"><div class="stat-num">${fmt(j.busuanzi_site_pv)}</div><div class="stat-label">累计访问</div></div>
+       <div class="stat"><div class="stat-num">${fmt(j.busuanzi_site_uv)}</div><div class="stat-label">累计访客</div></div>`;
+    if (manual) msg('📊 统计已刷新');
+  } catch (err) {
+    body.innerHTML = `<div class="stat" style="grid-column:1/-1; color:var(--danger);">统计获取失败：${esc(err.message)}</div>`;
+    if (manual) msg('❌ 统计获取失败: ' + err.message, false);
+  }
+}
+
 async function loadList() {
   const j = await api('/api/articles');
   articles = j.articles;
@@ -183,4 +204,5 @@ async function deleteArticle(id) {
 
 loadList();
 loadStatus();
+loadStats();
 setInterval(loadStatus, 15000);

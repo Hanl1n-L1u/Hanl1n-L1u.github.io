@@ -41,8 +41,7 @@ function json(res, code, obj) {
   const body = JSON.stringify(obj);
   res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': Buffer.byteLength(body) });
   res.end(body);
-}
-function readBody(req) {
+}function readBody(req) {
   return new Promise((resolve) => {
     let d = '';
     req.on('data', (c) => (d += c));
@@ -50,6 +49,25 @@ function readBody(req) {
       try { resolve(JSON.parse(d || '{}')); } catch { resolve({}); }
     });
   });
+}
+
+// 不蒜子统计（带 60s 缓存：后台刷新不重复打点，避免污染统计数据）
+let statsCache = null;
+let statsCacheAt = 0;
+const STATS_URL = 'https://liuhanlin.xyz';
+
+async function fetchStats() {
+  if (statsCache && Date.now() - statsCacheAt < 60000) return statsCache;
+  const r = await fetch('https://cdn.busuanzi.cc/api.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'User-Agent': 'Mozilla/5.0' },
+    body: JSON.stringify({ url: STATS_URL, referrer: '' }),
+  });
+  if (!r.ok) throw new Error('统计服务返回 ' + r.status);
+  const j = await r.json();
+  statsCache = j;
+  statsCacheAt = Date.now();
+  return j;
 }
 
 const server = http.createServer(async (req, res) => {
@@ -76,6 +94,14 @@ const server = http.createServer(async (req, res) => {
     }
     if (p === '/api/status' && req.method === 'GET') {
       return json(res, 200, { ok: true, status: gitStatus() });
+    }
+    if (p === '/api/stats' && req.method === 'GET') {
+      try {
+        const j = await fetchStats();
+        return json(res, 200, { ok: true, ...j });
+      } catch (e) {
+        return json(res, 502, { ok: false, error: '统计服务不可用: ' + String(e.message || e) });
+      }
     }
     if (p === '/api/articles' && req.method === 'POST') {
       const body = await readBody(req);

@@ -49,6 +49,13 @@
 
   .empty { color: var(--muted); text-align: center; padding: 40px 0; font-size: .9rem; }
 
+  /* 访问统计 */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; }
+  .stat-num { font-size: 1.4rem; font-weight: 700; color: var(--accent-light); }
+  .stat-label { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+  @media (max-width: 560px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
   form .field { margin-bottom: 14px; }
   form label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: 4px; }
   form input, form textarea, form select {
@@ -84,7 +91,20 @@
     </div>
     <div style="margin-bottom:12px; color:var(--muted); font-size:.78rem;">💡 拖动文章卡片可调整显示顺序（自动保存并发布）</div>
     <div id="list"></div>
-    <div class="card" style="margin-top:24px; text-align:center;">
+    <div class="card" style="margin-top:24px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+        <div style="font-weight:600;">📊 访问统计</div>
+        <button class="btn ghost small" onclick="loadStats(true)">🔄 刷新</button>
+      </div>
+      <div class="stats-grid" id="statsBody">
+        <div class="stat"><div class="stat-num">--</div><div class="stat-label">今日访问</div></div>
+        <div class="stat"><div class="stat-num">--</div><div class="stat-label">今日访客</div></div>
+        <div class="stat"><div class="stat-num">--</div><div class="stat-label">累计访问</div></div>
+        <div class="stat"><div class="stat-num">--</div><div class="stat-label">累计访客</div></div>
+      </div>
+      <div style="color:var(--muted); font-size:.72rem; margin-top:10px;">数据来自不蒜子（免费统计服务），与页面底部脚本配合；可能有延迟。</div>
+    </div>
+    <div class="card" style="margin-top:16px; text-align:center;">
       <a class="btn ghost" href="https://cusdis.com/dashboard/project/3a0a1bb6-e059-4cec-8b34-de004aa8b968" target="_blank" rel="noopener">💬 管理评论区（Cusdis 后台）</a>
       <div style="color:var(--muted); font-size:.75rem; margin-top:8px;">审核/删除评论、管理回复</div>
     </div>
