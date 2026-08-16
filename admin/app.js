@@ -27,9 +27,9 @@ async function loadSiteStatus() {
     const r = await fetch('/api/site-status');
     const j = await r.json();
     if (j.ok && j.status === 200) {
-      el.innerHTML = '<span class="dot ok"></span>网站在线';
+      el.innerHTML = '<span class="dot ok" title="网站在线"></span>';
     } else {
-      el.innerHTML = '<span class="dot err"></span>网站异常' + (j.status ? ' (HTTP ' + j.status + ')' : '');
+      el.innerHTML = '<span class="dot err" title="网站异常' + (j.status ? ' (HTTP ' + j.status + ')' : '') + '"></span>';
     }
   } catch {
     el.innerHTML = '<span class="dot err"></span>网站异常';
