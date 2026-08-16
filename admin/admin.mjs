@@ -56,6 +56,21 @@ let statsCache = null;
 let statsCacheAt = 0;
 const STATS_URL = 'https://liuhanlin.xyz';
 
+// 网站在线状态探测（带 30s 缓存）
+let siteStatusCache = null;
+let siteStatusAt = 0;
+async function checkSiteStatus() {
+  if (siteStatusCache && Date.now() - siteStatusAt < 30000) return siteStatusCache;
+  try {
+    const r = await fetch(STATS_URL, { redirect: 'follow' });
+    siteStatusCache = { status: r.status };
+  } catch (e) {
+    siteStatusCache = { status: 0, error: String(e.message || e).slice(0, 80) };
+  }
+  siteStatusAt = Date.now();
+  return siteStatusCache;
+}
+
 async function fetchStats() {
   if (statsCache && Date.now() - statsCacheAt < 60000) return statsCache;
   const r = await fetch('https://cdn.busuanzi.cc/api.php', {
@@ -94,6 +109,10 @@ const server = http.createServer(async (req, res) => {
     }
     if (p === '/api/status' && req.method === 'GET') {
       return json(res, 200, { ok: true, status: gitStatus() });
+    }
+    if (p === '/api/site-status' && req.method === 'GET') {
+      const s = await checkSiteStatus();
+      return json(res, 200, { ok: true, ...s });
     }
     if (p === '/api/stats' && req.method === 'GET') {
       try {

@@ -20,11 +20,20 @@ async function api(path, opts) {
   return j;
 }
 
-async function loadStatus() {
+async function loadSiteStatus() {
+  const el = $('siteStatus');
+  if (!el) return;
   try {
-    const j = await api('/api/status');
-    $('gitStatus').textContent = j.status;
-  } catch { $('gitStatus').textContent = '无法连接后台'; }
+    const r = await fetch('/api/site-status');
+    const j = await r.json();
+    if (j.ok && j.status === 200) {
+      el.innerHTML = '<span class="dot ok"></span>网站在线';
+    } else {
+      el.innerHTML = '<span class="dot err"></span>网站异常' + (j.status ? ' (HTTP ' + j.status + ')' : '');
+    }
+  } catch {
+    el.innerHTML = '<span class="dot err"></span>网站异常';
+  }
 }
 
 // ── 访问统计（不蒜子） ──
@@ -114,7 +123,7 @@ async function saveOrder() {
     });
     msg('🔀 顺序已保存并推送');
     loadList();
-    loadStatus();
+    loadSiteStatus();
   } catch (err) {
     msg('❌ 保存顺序失败: ' + err.message, false);
   }
@@ -181,7 +190,7 @@ $('editForm').addEventListener('submit', async (e) => {
     });
     msg('✅ 已保存并推送到 GitHub！');
     showList();
-    loadStatus();
+    loadSiteStatus();
   } catch (err) {
     msg('❌ 保存失败: ' + err.message, false);
   }
@@ -196,13 +205,13 @@ async function deleteArticle(id) {
     await api('/api/articles/' + encodeURIComponent(id), { method: 'DELETE' });
     msg('🗑 已删除并推送');
     showList();
-    loadStatus();
+    loadSiteStatus();
   } catch (err) {
     msg('❌ 删除失败: ' + err.message, false);
   }
 }
 
 loadList();
-loadStatus();
+loadSiteStatus();
 loadStats();
-setInterval(loadStatus, 15000);
+setInterval(loadSiteStatus, 60000);

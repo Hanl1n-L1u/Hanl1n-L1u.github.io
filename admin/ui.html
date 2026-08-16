@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>博客后台</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'1'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%237c3aed'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%23a78bfa'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Ccircle%20cx%3D'50'%20cy%3D'50'%20r%3D'47'%20fill%3D'url(%23g)'%2F%3E%3Ctext%20x%3D'50'%20y%3D'69'%20font-size%3D'58'%20text-anchor%3D'middle'%3E%F0%9F%90%B6%3C%2Ftext%3E%3C%2Fsvg%3E"><text y='.9em' font-size='90'>🐶</text></svg>">
+<title>博客后台</title><text y='.9em' font-size='90'>🐶</text></svg>">
 <style>
   :root {
     --bg: #0f0f1a; --card: #1a1a2e; --border: #2d2d44;
@@ -76,13 +75,19 @@
   #msg.ok { border-color: var(--ok); }
   #msg.err { border-color: var(--danger); }
   .back { margin-bottom: 16px; display: inline-block; }
+
+  /* 网站在线状态灯 */
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #6b7280; margin-right: 6px; vertical-align: middle; }
+  .dot.ok { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,.6); }
+  .dot.err { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,.6); }
+  #siteStatus { display: flex; align-items: center; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>博客后台</h1>
-    <div class="meta" id="gitStatus">加载中...</div>
+    <div class="meta" id="siteStatus"><span class="dot"></span>检测中...</div>
   </header>
 
   <!-- 列表视图 -->
