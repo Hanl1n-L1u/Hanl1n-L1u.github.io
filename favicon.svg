@@ -5,14 +5,15 @@
       <stop offset="1" stop-color="#a78bfa"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
-  <!-- 左耳（画在脸后面，宽耳身从脸侧伸出） -->
-  <path d="M15 25 C7 17 3 29 7 40 C9 48 18 46 19 38 C20 32 18 27 15 25 Z" fill="#a16207"/>
+  <!-- 圆形背景（不是方角） -->
+  <circle cx="32" cy="32" r="30" fill="url(#bg)"/>
+  <!-- 左耳：圆润椭圆垂耳（画在脸后面） -->
+  <ellipse cx="11" cy="33" rx="7.5" ry="10.5" fill="#a16207" transform="rotate(-14 11 33)"/>
   <!-- 右耳 -->
-  <path d="M49 25 C57 17 61 29 57 40 C55 48 46 46 45 38 C44 32 46 27 49 25 Z" fill="#a16207"/>
+  <ellipse cx="53" cy="33" rx="7.5" ry="10.5" fill="#a16207" transform="rotate(14 53 33)"/>
   <!-- 内耳 -->
-  <path d="M14 28 C9 22 6 31 9 38 C10 44 16 43 16 37 C17 33 16 29 14 28 Z" fill="#fcd9b8" opacity=".9"/>
-  <path d="M50 28 C55 22 58 31 55 38 C54 44 48 43 48 37 C47 33 48 29 50 28 Z" fill="#fcd9b8" opacity=".9"/>
+  <ellipse cx="11.5" cy="35" rx="3.6" ry="5.6" fill="#fcd9b8" opacity=".9" transform="rotate(-14 11.5 35)"/>
+  <ellipse cx="52.5" cy="35" rx="3.6" ry="5.6" fill="#fcd9b8" opacity=".9" transform="rotate(14 52.5 35)"/>
   <!-- 脸 -->
   <circle cx="32" cy="38" r="19" fill="#fff8ee"/>
   <!-- 眼睛 -->
