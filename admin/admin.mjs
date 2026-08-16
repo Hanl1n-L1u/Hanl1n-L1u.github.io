@@ -164,7 +164,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`🦀 博客后台已启动: http://localhost:${PORT}`);
+  console.log(`博客后台已启动: http://localhost:${PORT}`);
   console.log(`   仓库: ${REPO}`);
   console.log(`   Ctrl+C 停止`);
 });
