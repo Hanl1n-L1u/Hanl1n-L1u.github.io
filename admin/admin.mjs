@@ -85,6 +85,11 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
     return res.end(js);
   }
+  if (p === '/favicon.svg') {
+    const svg = fs.readFileSync(path.join(REPO, 'favicon.svg'), 'utf8');
+    res.writeHead(200, { 'Content-Type': 'image/svg+xml; charset=utf-8' });
+    return res.end(svg);
+  }
 
   // ── API ──
   try {
