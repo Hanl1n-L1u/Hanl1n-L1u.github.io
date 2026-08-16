@@ -92,12 +92,13 @@ const server = http.createServer(async (req, res) => {
   // ── 静态页面：管理界面 ──
   if (p === '/' || p === '/index.html') {
     const html = fs.readFileSync(path.join(__dirname, 'ui.html'), 'utf8');
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    // no-store：禁止浏览器缓存后台页面（避免旧版 favicon/代码残留）
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
     return res.end(html);
   }
   if (p === '/app.js') {
     const js = fs.readFileSync(path.join(__dirname, 'app.js'), 'utf8');
-    res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+    res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
     return res.end(js);
   }
 
