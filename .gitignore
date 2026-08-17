@@ -1,0 +1,12 @@
+# ── 敏感文件 / 本地配置（绝不提交）──
+.secrets/
+.openclaw/
+*.env
+.env
+admin/.admin-pass
+
+# ── 本地工具 / 临时文件 ──
+node_modules/
+*.log
+dev-server.cjs
+preview.html
