@@ -86,6 +86,20 @@
 </head>
 <body>
 <div class="wrap">
+  <!-- 登录视图 -->
+  <div id="loginView" style="display:none; align-items:center; justify-content:center; min-height:60vh;">
+    <div class="card" style="width:100%; max-width:360px;">
+      <h2 style="margin-bottom:16px;">🔒 后台登录</h2>
+      <form id="loginForm">
+        <div class="field">
+          <label>密码</label>
+          <input type="password" id="loginPass" placeholder="请输入后台密码" autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn" style="width:100%; justify-content:center;">登 录</button>
+      </form>
+    </div>
+  </div>
+
   <header>
     <h1>博客后台</h1>
     <div class="meta" id="siteStatus"><span class="dot"></span></div>

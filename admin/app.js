@@ -1,6 +1,7 @@
 // 博客后台前端逻辑
 let articles = [];
 let editingId = null;
+let token = localStorage.getItem('admin_token') || '';
 
 const $ = (id) => document.getElementById(id);
 const listView = $('listView');
@@ -14,11 +15,50 @@ function msg(text, ok = true) {
 }
 
 async function api(path, opts) {
+  opts = opts || {};
+  opts.headers = Object.assign({}, opts.headers || {});
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
   const r = await fetch(path, opts);
+  if (r.status === 401) { showLogin(); throw new Error('需要登录'); }
   const j = await r.json();
   if (!j.ok) throw new Error(j.error || '请求失败');
   return j;
 }
+
+// ── 登录 ──
+function showLogin() {
+  $('loginView').style.display = 'flex';
+  $('listView').style.display = 'none';
+  $('editView').style.display = 'none';
+  $('loginPass').focus();
+}
+function hideLogin() {
+  $('loginView').style.display = 'none';
+}
+
+async function doLogin() {
+  const pass = $('loginPass').value.trim();
+  if (!pass) return msg('请输入密码', false);
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pass }),
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || '登录失败');
+    token = j.token;
+    localStorage.setItem('admin_token', token);
+    hideLogin();
+    msg('✅ 登录成功');
+    loadList();
+    loadSiteStatus();
+    loadStats();
+  } catch (err) {
+    msg('❌ ' + err.message, false);
+  }
+}
+$('loginForm').addEventListener('submit', (e) => { e.preventDefault(); doLogin(); });
 
 async function loadSiteStatus() {
   const el = $('siteStatus');
@@ -211,7 +251,17 @@ async function deleteArticle(id) {
   }
 }
 
-loadList();
-loadSiteStatus();
-loadStats();
-setInterval(loadSiteStatus, 60000);
+// 有 token 先验证，无 token 直接显示登录
+(async () => {
+  if (token) {
+    try {
+      await api('/api/articles');
+      loadList();
+      loadSiteStatus();
+      loadStats();
+      setInterval(loadSiteStatus, 60000);
+      return;
+    } catch { /* 401 会触发 showLogin */ }
+  }
+  showLogin();
+})();
